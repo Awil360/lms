@@ -6,9 +6,8 @@ pipeline {
             steps {
                 echo "code quality analysis"
                 sleep 10
-
                 echo "code completed"
-0            }
+            }
         }
         stage('Test') {
             steps {
