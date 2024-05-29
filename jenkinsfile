@@ -9,9 +9,12 @@ pipeline {
                 echo "code completed"
             }
         }
-        stage('Test') {
+        stage('build LMS') {
             steps {
-                echo "TestinggG.."
+                echo "build the artifact"
+                sh 'cd webapp && npm install && npm run build '
+                echo 'build completed'
+
             }
         }
         stage('Deploy') {
