@@ -5,8 +5,7 @@ pipeline {
         stage('sonar analysis') {
             steps {
                 echo "code quality analysis"
-                sh 'cd webapp'
-                sh 'sudo docker run  --rm -e SONAR_HOST_URL="http://35.86.175.8:9000" -e SONAR_TOKEN="sqp_c721a8c2120e621087cab4142fb2ae90bf2c471e" -v  ".:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.projectKey=lms '
+                sh 'cd webapp && sudo docker run  --rm -e SONAR_HOST_URL="http://35.86.175.8:9000" -e SONAR_TOKEN="sqp_c721a8c2120e621087cab4142fb2ae90bf2c471e" -v  ".:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.projectKey=lms '
                 echo "code completed"
             }
         }
