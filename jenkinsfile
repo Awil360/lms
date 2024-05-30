@@ -23,8 +23,8 @@ pipeline {
                     def packageJson = readJSON file:'webapp/package.json'
                     def packageJSONVersion = packageJson.version
                     echo "${packageJSONVersion}"
-                    sh "zip webapp/lms2-${packageJSONVersion}.zip -r dist/* "
-                  sh  "curl -v -u admin:awil123456 --upload-file webapp/lms2-${packageJSONVersion}.zip http://35.86.175.8:8081/repository/lms/"
+                    sh "zip webapp/lms-${packageJSONVersion}.zip -r dist/* "
+                  sh  "curl -v -u admin:awil123456 --upload-file webapp/lms-${packageJSONVersion}.zip http://35.86.175.8:8081/repository/lms/"
 
                 }
            }
@@ -39,7 +39,7 @@ pipeline {
                     echo "${packageJSONVersion}"
                 sh "curl -u admin:awil123456 -X GET 'http://35.86.175.8:8081/repository/lms/lms2-${packageJSONVersion}.zip' --output lms2-${packageJSONVersion}.zip"
                 sh "sudo rm -rf /var/www/html/*"
-                sh "sudo -o unzip lms2-${packageJSONVersion}.zip"
+                sh "sudo -o unzip lms-${packageJSONVersion}.zip"
                 sh "sudo cp -r webapp/dist/*  /var/www/html"
 
   
