@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('sonar analysis') {
+        stage('lms sonar analysis') {
             steps {
                 echo "code quality analysis"
                 sh 'cd webapp && sudo docker run  --rm -e SONAR_HOST_URL="http://35.86.175.8:9000" -e SONAR_TOKEN="sqp_eceb3794b310b31fa87bbcb6d92796b08ed5780e" -v  ".:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.projectKey=lms '
@@ -17,7 +17,7 @@ pipeline {
 
             }
         }
-        stage('Read JSON') {
+        stage('release lms') {
             steps {
                 script {
                     def packageJson = readJSON file:'webapp/package.json'
