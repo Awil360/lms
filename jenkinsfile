@@ -5,22 +5,27 @@ pipeline {
         stage('sonar analysis') {
             steps {
                 echo "code quality analysis"
-                sh 'cd webapp && sudo docker run  --rm -e SONAR_HOST_URL="http://35.86.175.8:9000" -e SONAR_TOKEN="sqp_eceb3794b310b31fa87bbcb6d92796b08ed5780e" -v  ".:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.projectKey=lms '
+               // sh 'cd webapp && sudo docker run  --rm -e SONAR_HOST_URL="http://35.86.175.8:9000" -e SONAR_TOKEN="sqp_eceb3794b310b31fa87bbcb6d92796b08ed5780e" -v  ".:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.projectKey=lms '
                 echo "code completed"
             }
         }
         stage('build LMS') {
             steps {
                 echo "build the artifact"
-                sh 'cd webapp && npm install && npm run build '
+               // sh 'cd webapp && npm install && npm run build '
                 echo 'build completed'
 
             }
         }
-        stage('Deploy') {
+        stage('Read JSON') {
             steps {
-                echo "Deployingg...."
-            }
+                script {
+                    def packageJson = readJSON file: 'package.json'
+                    def packageVersion = packageJson.version
+                    echo "${packageJsonVersion}"
+                }
+           }
         }
-    }
+   }
 }
+    
