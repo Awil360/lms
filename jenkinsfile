@@ -14,15 +14,16 @@ pipeline {
             }
         }
 
-        stage('Read Version') {
-            steps {
-                script {
-                    def packageJson = readJSON file: 'package.json'
-                    env.VERSION = packageJson.version
-                    env.IMAGE_TAG = "${DOCKER_IMAGE}:${env.VERSION}"
-                }
-            }
+       stage('Read Version') {
+    steps {
+        script {
+            def packageJson = readFile('package.json')
+            def json = readJSON text: packageJson
+            env.VERSION = json.version
+            env.IMAGE_TAG = "${DOCKER_IMAGE}:${env.VERSION}"
         }
+    }
+}
 
         stage('Build Docker Image') {
             steps {
