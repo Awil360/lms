@@ -24,29 +24,3 @@ pipeline {
         }
     }
 }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build(env.IMAGE_TAG)
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
-                        docker.image(env.IMAGE_TAG).push()
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            cleanWs()
-        }
-    }
-}
