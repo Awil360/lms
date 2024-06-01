@@ -13,6 +13,7 @@ pipeline {
                 git branch: 'dev', url: 'https://github.com/Awil360/lms.git'
             }
         }
+    }
 
        stage('Read Version') {
     steps {
