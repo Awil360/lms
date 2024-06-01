@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        /// Define Docker image name and Docker Hub credentials
+        // Define Docker image name and Docker Hub credentials
         DOCKER_IMAGE = 'awil360/lms-newfrontend'
         DOCKER_CREDENTIALS_ID = 'lms-docker'
     }
