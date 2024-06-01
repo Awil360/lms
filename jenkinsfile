@@ -24,5 +24,14 @@ pipeline {
                 }
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build(env.IMAGE_TAG)
+                }
+            }
+        }
+
     }
 }
