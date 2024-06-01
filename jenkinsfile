@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    environment {
+        // Define Docker image name and Docker Hub credentials
+        DOCKER_IMAGE = 'awil360/lms-newfrontend'
+        DOCKER_CREDENTIALS_ID = 'lms-docker'
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'dev', url: 'https://github.com/Awil360/lms.git'
+            }
+        }
+
+        stage('Read Version') {
+            steps {
+                script {
+                    def packageJson = readJSON file: 'package.json'
+                    env.VERSION = packageJson.version
+                    env.IMAGE_TAG = "${DOCKER_IMAGE}:${env.VERSION}"
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build(env.IMAGE_TAG)
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
+                        docker.image(env.IMAGE_TAG).push()
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
