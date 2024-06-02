@@ -1,6 +1,5 @@
 FROM node:16 AS builder
-RUN mkdir /frontend
-WORKDIR /frontend
+WORKDIR /app
 copy package*.json ./
 COPY . .
 RUN npm install
