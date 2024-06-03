@@ -1,4 +1,4 @@
-FROM node:16 AS build
+FROM node:latest AS build
 WORKDIR /app
 COPY package*.json ./
 COPY . . 
