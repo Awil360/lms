@@ -8,11 +8,11 @@ pipeline {
     }
 
     stages {
-        stage('Clone Repository') {
-            steps {
-                git branch: 'dev', url: 'https://github.com/Awil360/lms.git'
-            }
-        }
+        // stage('Clone Repository') {
+        //     steps {
+        //         git branch: 'dev', url: 'https://github.com/Awil360/lms.git'
+        //     }
+        // }
         
         stage('Read Version') {
             steps {
@@ -28,7 +28,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build(env.IMAGE_TAG,"-t webapp/Dockerfile .")
+                    docker.build(env.IMAGE_TAG,"-f webapp/Dockerfile .")
                 }
             }
         }
