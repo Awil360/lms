@@ -28,7 +28,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build('awil360/lms-front:2.2',"-f webapp/Dockerfile .")
+                    docker.build(env.IMAGE_TAG,"-f Dockerfile .")
                 }
             }
         }   
