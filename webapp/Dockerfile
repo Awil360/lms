@@ -1,6 +1,6 @@
 FROM node:16 AS build
 WORKDIR /app
-copy webapp/package*.json ./
+copy package*.json ./
 RUN npm install
 COPY . .
 RUN npm run build
