@@ -11,9 +11,6 @@ pipeline {
         POSTGRES_IMAGE = 'postgres'
         BACKEND_CONTAINER_NAME = 'backend-container'
         FRONTEND_CONTAINER_NAME = 'frontend-container'
-
-
-
     }
 
     stages {
@@ -93,7 +90,6 @@ pipeline {
                 }
             }
         }
-    }
 
         stage('Run Backend Container') {
             steps {
@@ -105,14 +101,14 @@ pipeline {
         }
 
         stage('Run Frontend Container') {
-                    steps {
-                        script {
-                            // Run frontend container for testing
-                            sh "docker run -d --name ${env.FRONTEND_CONTAINER_NAME} -p 80:80 ${env.FRONTEND_IMAGE_TAG}"
-                        }
-                    }
+            steps {
+                script {
+                    // Run frontend container for testing
+                    sh "docker run -d --name ${env.FRONTEND_CONTAINER_NAME} -p 80:80 ${env.FRONTEND_IMAGE_TAG}"
                 }
-
+            }
+        }
+    }
 
     post {
         always {
@@ -125,10 +121,6 @@ pipeline {
                 sh "docker rm ${env.BACKEND_CONTAINER_NAME} || true"
                 sh "docker stop ${env.FRONTEND_CONTAINER_NAME} || true"
                 sh "docker rm ${env.FRONTEND_CONTAINER_NAME} || true"
-
-
-
-                
             }
         }
     }
