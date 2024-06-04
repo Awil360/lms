@@ -114,13 +114,13 @@ pipeline {
         always {
             // Clean up PostgreSQL container
             script {
-                sh "docker stop ${env.POSTGRES_CONTAINER_NAME} || true"
-                sh "docker rm ${env.POSTGRES_CONTAINER_NAME} || true"
+                //sh "docker stop ${env.POSTGRES_CONTAINER_NAME} || true"
+                //sh "docker rm ${env.POSTGRES_CONTAINER_NAME} || true"
 
-                sh "docker stop ${env.BACKEND_CONTAINER_NAME} || true"
-                sh "docker rm ${env.BACKEND_CONTAINER_NAME} || true"
-                sh "docker stop ${env.FRONTEND_CONTAINER_NAME} || true"
-                sh "docker rm ${env.FRONTEND_CONTAINER_NAME} || true"
+                //sh "docker stop ${env.BACKEND_CONTAINER_NAME} || true"
+                //sh "docker rm ${env.BACKEND_CONTAINER_NAME} || true"
+                //sh "docker stop ${env.FRONTEND_CONTAINER_NAME} || true"
+                //sh "docker rm ${env.FRONTEND_CONTAINER_NAME} || true"
             }
         }
     }
