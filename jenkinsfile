@@ -19,7 +19,7 @@ pipeline {
         stage('Read Version') {
             steps {
                 script {
-                    def packageJson = readFile('webapp/package.json')
+                    def packageJson = readFile('Package.json')
                     def json = readJSON text: packageJson
                     env.VERSION = json.version
                     //env.IMAGE_TAG = "${DOCKER_IMAGE}:${env.VERSION}"
