@@ -4,18 +4,15 @@ pipeline {
     environment {
         // Define environment variables
         DOCKER_REGISTRY = 'awil360'
-        frontend_IMAGE = 'awil360/lms-front'
-        backend_IMAGE = 'awil360/lms-backenddd'
-        DOCKER_CREDENTIALS_ID = 'lms-docker' 
+        FRONTEND_IMAGE = 'awil360/lms-front'
+        BACKEND_IMAGE = 'awil360/lms-backend'
+        DOCKER_CREDENTIALS_ID = 'lms-docker'
         POSTGRES_CONTAINER_NAME = 'lms-db'
         POSTGRES_PASSWORD = 'awil123456'
         POSTGRES_IMAGE = 'postgres'
-
-
     }
         
     stages {
-
         stage('Start PostgreSQL Container') {
             steps {
                 script {
@@ -28,7 +25,6 @@ pipeline {
                 }
             }
         }
-
 
         stage('Checkout') {
             steps {
@@ -43,14 +39,13 @@ pipeline {
                     def packageJson = readFile('webapp/package.json')
                     def json = readJSON text: packageJson
                     env.VERSION = json.version
-                    env.IMAGE_TAG = "${DOCKER_IMAGE}:${env.VERSION}"
-                    env.BACKEND_IMAGE_TAG = "${BACKEND_IMAGE}:${env.VERSION}"
+                    env.FRONTEND_IMAGE_TAG = "${env.FRONTEND_IMAGE}:${env.VERSION}"
+                    env.BACKEND_IMAGE_TAG = "${env.BACKEND_IMAGE}:${env.VERSION}"
                 }
             }
         }
 
-
-         stage('Build Backend Docker Image') {
+        stage('Build Backend Docker Image') {
             steps {
                 script {
                     docker.build(env.BACKEND_IMAGE_TAG, 'api') // Adjust the path to your backend Dockerfile if needed
@@ -67,21 +62,32 @@ pipeline {
                 }
             }
         }
-        stage('Build frontend Docker Image') {
+
+        stage('Build Frontend Docker Image') {
             steps {
                 script {
-                    docker.build(env.IMAGE_TAG, 'webapp')
+                    docker.build(env.FRONTEND_IMAGE_TAG, 'webapp')
                 }
             }
         }
 
-        stage('Push frontend Docker Image') {
+        stage('Push Frontend Docker Image') {
             steps {
                 script {
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
-                        docker.image(env.IMAGE_TAG).push()
+                        docker.image(env.FRONTEND_IMAGE_TAG).push()
                     }
                 }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up PostgreSQL container
+            script {
+                sh "docker stop ${env.POSTGRES_CONTAINER_NAME} || true"
+                sh "docker rm ${env.POSTGRES_CONTAINER_NAME} || true"
             }
         }
     }
