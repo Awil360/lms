@@ -10,6 +10,17 @@ pipeline {
     }
 
     stages {
+        
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the source code
+                checkout scm
+            }
+        }
+    }
+
+
         // stage('Clone Repository') {
         //     steps {
         //         git branch: 'dev', url: 'https://github.com/Awil360/lms.git'
