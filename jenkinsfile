@@ -5,7 +5,7 @@ pipeline {
         DOCKER_REGISTRY = 'awil360'
         BACKEND_IMAGE = "${DOCKER_REGISTRY}/lms-backend"
         DOCKER_CREDENTIALS_ID = 'lms-docker'
-        POSTGRES_CONTAINER_NAME = 'lms-databasea'
+        POSTGRES_CONTAINER_NAME = 'lms-database'
         POSTGRES_PASSWORD = 'awil123456'
         POSTGRES_IMAGE = 'postgres'
     }
@@ -58,10 +58,8 @@ pipeline {
                 }
             }
         }
-    }
 
-    
-    stage('Push Backend Docker Image') {
+        stage('Push Backend Docker Image') {
             steps {
                 script {
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
@@ -70,7 +68,7 @@ pipeline {
                 }
             }
         }
-
+    }
 
     post {
         always {
