@@ -9,6 +9,11 @@ pipeline {
         POSTGRES_CONTAINER_NAME = 'lms-database'
         POSTGRES_PASSWORD = 'awil123456'
         POSTGRES_IMAGE = 'postgres'
+        BACKEND_CONTAINER_NAME = 'backend-container'
+        FRONTEND_CONTAINER_NAME = 'frontend-container'
+
+
+
     }
 
     stages {
@@ -90,12 +95,40 @@ pipeline {
         }
     }
 
+        stage('Run Backend Container') {
+            steps {
+                script {
+                    // Run backend container for testing
+                    sh "docker run -d --name ${env.BACKEND_CONTAINER_NAME} -p 8080:8080 ${env.BACKEND_IMAGE_TAG}"
+                }
+            }
+        }
+
+        stage('Run Frontend Container') {
+                    steps {
+                        script {
+                            // Run frontend container for testing
+                            sh "docker run -d --name ${env.FRONTEND_CONTAINER_NAME} -p 80:80 ${env.FRONTEND_IMAGE_TAG}"
+                        }
+                    }
+                }
+
+
     post {
         always {
             // Clean up PostgreSQL container
             script {
                 sh "docker stop ${env.POSTGRES_CONTAINER_NAME} || true"
                 sh "docker rm ${env.POSTGRES_CONTAINER_NAME} || true"
+
+                sh "docker stop ${env.BACKEND_CONTAINER_NAME} || true"
+                sh "docker rm ${env.BACKEND_CONTAINER_NAME} || true"
+                sh "docker stop ${env.FRONTEND_CONTAINER_NAME} || true"
+                sh "docker rm ${env.FRONTEND_CONTAINER_NAME} || true"
+
+
+
+                
             }
         }
     }
