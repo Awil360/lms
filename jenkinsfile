@@ -6,7 +6,7 @@ pipeline {
         FRONTEND_IMAGE = "${DOCKER_REGISTRY}/lms-front"
         BACKEND_IMAGE = "${DOCKER_REGISTRY}/lms-backend"
         DOCKER_CREDENTIALS_ID = 'lms-docker'
-        POSTGRES_CONTAINER_NAME = 'lms-database' // Fixed typo in container name
+        POSTGRES_CONTAINER_NAME = 'lms-database'
         POSTGRES_PASSWORD = 'awil123456'
         POSTGRES_IMAGE = 'postgres'
     }
@@ -26,7 +26,6 @@ pipeline {
                     def dbIp = sh(script: "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${env.POSTGRES_CONTAINER_NAME}", returnStdout: true).trim()
                     // Set the DATABASE_URL environment variable
                     env.DATABASE_URL = "postgresql://postgres:${env.POSTGRES_PASSWORD}@${dbIp}:5432/postgres"
-                
                 }
             }
         }
@@ -54,8 +53,9 @@ pipeline {
             steps {
                 script {
                     // Ensure the DATABASE_URL is available during the build
-                    withEnv(["DATABASE_URL=${env.DATABASE_URL}"])
-                    docker.build(env.BACKEND_IMAGE_TAG, 'api') // Adjust the path to your backend Dockerfile if needed
+                    withEnv(["DATABASE_URL=${env.DATABASE_URL}"]) {
+                        docker.build(env.BACKEND_IMAGE_TAG, 'api') // Adjust the path to your backend Dockerfile if needed
+                    }
                 }
             }
         }
