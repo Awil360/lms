@@ -5,10 +5,29 @@ pipeline {
         // Define environment variables
         DOCKER_REGISTRY = 'awil360'
         DOCKER_IMAGE = 'awil360/lms-front'
-        DOCKER_CREDENTIALS_ID = 'lms-docker'
+        DOCKER_CREDENTIALS_ID = 'lms-docker' 
+        POSTGRES_CONTAINER_NAME = 'lms-db'
+        POSTGRES_PASSWORD = 'awil123456'
+        POSTGRES_IMAGE = 'postgres'
+
     }
         
     stages {
+
+        stage('Start PostgreSQL Container') {
+            steps {
+                script {
+                    // Run PostgreSQL container
+                    sh """
+                        docker run -dt --name ${env.POSTGRES_CONTAINER_NAME} \
+                        -e POSTGRES_PASSWORD=${env.POSTGRES_PASSWORD} \
+                        ${env.POSTGRES_IMAGE}
+                    """
+                }
+            }
+        }
+
+
         stage('Checkout') {
             steps {
                 // Checkout the source code
