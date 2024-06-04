@@ -55,7 +55,7 @@ pipeline {
             steps {
                 script {
 
-   // Ensure the DATABASE_URL is available during the build
+                   // Ensure the DATABASE_URL is available during the build
                     withEnv(["DATABASE_URL=${env.DATABASE_URL}"])
                     docker.build(env.BACKEND_IMAGE_TAG, 'api') // Adjust the path to your backend Dockerfile if needed
                 }
