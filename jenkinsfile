@@ -15,6 +15,7 @@ pipeline {
                 checkout scm
             }
         }
+    }
 
         stage('Read Version') {
             steps {
