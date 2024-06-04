@@ -41,9 +41,8 @@ pipeline {
                 script {
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
                         docker.image(env.IMAGE_TAG).push()
-                    }
                 }
             }
         }
     }
-    
+}
