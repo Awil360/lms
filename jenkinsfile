@@ -2,9 +2,11 @@ pipeline {
     agent any
 
     environment {
-        // Define Docker image name and Docker Hub credentials
+          // Define environment variables
+        DOCKER_REGISTRY = 'awil360'
         DOCKER_IMAGE = 'awil360/lms-front'
         DOCKER_CREDENTIALS_ID = 'lms-docker'
+
     }
 
     stages {
@@ -20,7 +22,8 @@ pipeline {
                     def packageJson = readFile('webapp/package.json')
                     def json = readJSON text: packageJson
                     env.VERSION = json.version
-                    env.IMAGE_TAG = "${DOCKER_IMAGE}:${env.VERSION}"
+                    //env.IMAGE_TAG = "${DOCKER_IMAGE}:${env.VERSION}"
+                    docker.build("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.VERSION}")
                 }
             }
         }
