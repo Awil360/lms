@@ -8,8 +8,6 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'lms-docker'
 
     }
-
-    stages {
         
     stages {
         stage('Checkout') {
