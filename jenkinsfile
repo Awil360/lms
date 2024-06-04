@@ -62,6 +62,18 @@ pipeline {
                 }
             }
         }
+       post {
+        always {
+            // Clean up PostgreSQL container
+            script {
+                sh "docker stop ${env.POSTGRES_CONTAINER_NAME} || true"
+                sh "docker rm ${env.POSTGRES_CONTAINER_NAME} || true"
+            }
+        }
+    }
+}
+
+
 
         
     }
