@@ -30,6 +30,39 @@ pipeline {
             }
         }
 
+
+        
+        stage('Checkout') {
+            steps {
+                // Checkout the source code
+                checkout scm
+            }
+        }
+
+        stage('Read Version') {
+            steps {
+                script {
+                    def packageJson = readFile('webapp/package.json')
+                    def json = readJSON text: packageJson
+                    env.VERSION = json.version
+                    env.FRONTEND_IMAGE_TAG = "${env.FRONTEND_IMAGE}:${env.VERSION}"
+                    env.BACKEND_IMAGE_TAG = "${env.BACKEND_IMAGE}:${env.VERSION}"
+                }
+            }
+        }
+
+        stage('Build Backend Docker Image') {
+            steps {
+                script {
+                    // Ensure the DATABASE_URL is available during the build
+                    withEnv(["DATABASE_URL=${env.DATABASE_URL}"]) {
+                        writeFile file: 'api/.env', text: "DATABASE_URL=${env.DATABASE_URL}"
+                        docker.build(env.BACKEND_IMAGE_TAG, 'api')
+                    }
+                }
+            }
+        }
+
         
     }
 }
