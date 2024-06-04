@@ -3,19 +3,18 @@ pipeline {
 
     environment {
         DOCKER_REGISTRY = 'awil360'
-        FRONTEND_IMAGE = "${DOCKER_REGISTRY}/lms-front"
         BACKEND_IMAGE = "${DOCKER_REGISTRY}/lms-backend"
         DOCKER_CREDENTIALS_ID = 'lms-docker'
         POSTGRES_CONTAINER_NAME = 'lms-database'
         POSTGRES_PASSWORD = 'awil123456'
         POSTGRES_IMAGE = 'postgres'
     }
-        
+
     stages {
         stage('Start PostgreSQL Container') {
             steps {
                 script {
-                    // /Run PostgreSQL container
+                    // Run PostgreSQL container
                     sh """
                         docker run -dt --name ${env.POSTGRES_CONTAINER_NAME} \
                         -e POSTGRES_PASSWORD=${env.POSTGRES_PASSWORD} \
@@ -30,8 +29,6 @@ pipeline {
             }
         }
 
-
-        
         stage('Checkout') {
             steps {
                 // Checkout the source code
@@ -45,7 +42,6 @@ pipeline {
                     def packageJson = readFile('webapp/package.json')
                     def json = readJSON text: packageJson
                     env.VERSION = json.version
-                    env.FRONTEND_IMAGE_TAG = "${env.FRONTEND_IMAGE}:${env.VERSION}"
                     env.BACKEND_IMAGE_TAG = "${env.BACKEND_IMAGE}:${env.VERSION}"
                 }
             }
@@ -62,7 +58,9 @@ pipeline {
                 }
             }
         }
-       post {
+    }
+
+    post {
         always {
             // Clean up PostgreSQL container
             script {
@@ -70,7 +68,5 @@ pipeline {
                 sh "docker rm ${env.POSTGRES_CONTAINER_NAME} || true"
             }
         }
-    }    
-}
-
+    }
 }
