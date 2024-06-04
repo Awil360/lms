@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Define Docker image name and Docker Hub credentials
-        DOCKER_IMAGE = 'awil360/lms-front'
+        DOCKER_IMAGE = ''
         DOCKER_CREDENTIALS_ID = 'lms-docker'
     }
 
@@ -34,15 +34,6 @@ pipeline {
         }
 
 
-    stage('Push Docker Image') {
-            steps {
-                script {
-                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
-                        docker.image(env.IMAGE_TAG).push()
-                    }
-                }
-            }
         }
     }
- }
-
+ 
