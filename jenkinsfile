@@ -19,11 +19,11 @@ pipeline {
         stage('Read Version') {
             steps {
                 script {
-                    def packageJson = readFile('Package.json')
+                    def packageJson = readFile('webapp/package.json')
                     def json = readJSON text: packageJson
                     env.VERSION = json.version
                     //env.IMAGE_TAG = "${DOCKER_IMAGE}:${env.VERSION}"
-                    docker.build("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.VERSION}")
+                // docker.build("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.VERSION}")
                 }
             }
         }
@@ -31,7 +31,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build(env.IMAGE_TAG,"-f webapp/Dockerfile .")
+                   docker.build("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.VERSION}")
                 }
             }
         }
