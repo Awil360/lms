@@ -22,7 +22,7 @@ pipeline {
                         -e POSTGRES_PASSWORD=${env.POSTGRES_PASSWORD} \
                         ${env.POSTGRES_IMAGE}
                     """
-                    sh "cat /etc/hosts"
+                    sh "docker inspect lms-databse|grep 'ip-address'"
                 }
             }
         }
