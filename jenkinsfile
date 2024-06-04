@@ -4,11 +4,13 @@ pipeline {
     environment {
         // Define environment variables
         DOCKER_REGISTRY = 'awil360'
-        DOCKER_IMAGE = 'awil360/lms-front'
+        frontend_IMAGE = 'awil360/lms-front'
+        backend_IMAGE = 'awil360/lms-backenddd'
         DOCKER_CREDENTIALS_ID = 'lms-docker' 
         POSTGRES_CONTAINER_NAME = 'lms-db'
         POSTGRES_PASSWORD = 'awil123456'
         POSTGRES_IMAGE = 'postgres'
+
 
     }
         
@@ -42,11 +44,30 @@ pipeline {
                     def json = readJSON text: packageJson
                     env.VERSION = json.version
                     env.IMAGE_TAG = "${DOCKER_IMAGE}:${env.VERSION}"
+                    env.BACKEND_IMAGE_TAG = "${BACKEND_IMAGE}:${env.VERSION}"
                 }
             }
         }
 
-        stage('Build Docker Image') {
+
+         stage('Build Backend Docker Image') {
+            steps {
+                script {
+                    docker.build(env.BACKEND_IMAGE_TAG, 'api') // Adjust the path to your backend Dockerfile if needed
+                }
+            }
+        }
+
+        stage('Push Backend Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
+                        docker.image(env.BACKEND_IMAGE_TAG).push()
+                    }
+                }
+            }
+        }
+        stage('Build frontend Docker Image') {
             steps {
                 script {
                     docker.build(env.IMAGE_TAG, 'webapp')
@@ -54,7 +75,7 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Push frontend Docker Image') {
             steps {
                 script {
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
