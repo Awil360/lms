@@ -30,6 +30,15 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                  sh "docker container run -dt --name lms-db -e POSTGRES_PASSWORD=awil123456 postgres"
+                }
+            }
+        }
+
+
+        stage('Build Docker Image') {
+            steps {
+                script {
                     docker.build(env.IMAGE_TAG,'webapp')
                 }
             }
