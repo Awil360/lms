@@ -17,13 +17,6 @@ pipeline {
         }
     }
 
-        stage('run a database container') {
-            steps {
-                script {
-                  sh "docker container run -dt --name lms-db -e POSTGRES_PASSWORD=awil123456 postgres"
-                }
-            }
-        }
 
         stage('Read Version') {
             steps {
