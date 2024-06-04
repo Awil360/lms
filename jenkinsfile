@@ -70,11 +70,7 @@ pipeline {
                 sh "docker rm ${env.POSTGRES_CONTAINER_NAME} || true"
             }
         }
-    }
+    }    
 }
 
-
-
-        
-    }
 }
