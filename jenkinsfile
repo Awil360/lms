@@ -7,7 +7,7 @@ pipeline {
         FRONTEND_IMAGE = 'awil360/lms-front'
         BACKEND_IMAGE = 'awil360/lms-backend'
         DOCKER_CREDENTIALS_ID = 'lms-docker'
-        POSTGRES_CONTAINER_NAME = 'lms-db'
+        POSTGRES_CONTAINER_NAME = 'lms-databse'
         POSTGRES_PASSWORD = 'awil123456'
         POSTGRES_IMAGE = 'postgres'
     }
