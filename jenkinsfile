@@ -110,10 +110,10 @@ pipeline {
         }
     }
 
-    post {
-        always {
+    //post {
+       // always {
             // Clean up PostgreSQL container
-            script {
+            //script {
                 //sh "docker stop ${env.POSTGRES_CONTAINER_NAME} || true"
                 //sh "docker rm ${env.POSTGRES_CONTAINER_NAME} || true"
 
@@ -122,6 +122,6 @@ pipeline {
                 //sh "docker stop ${env.FRONTEND_CONTAINER_NAME} || true"
                 //sh "docker rm ${env.FRONTEND_CONTAINER_NAME} || true"
             }
-        }
-    }
-}
+       // }
+    //}
+//}
