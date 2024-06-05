@@ -116,7 +116,7 @@ pipeline {
     }
 
     ///post {
-       //always {
+       ///always {
              //Clean up PostgreSQL container
             //script {
                 //sh "docker stop ${env.POSTGRES_CONTAINER_NAME} || true"
