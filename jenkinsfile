@@ -33,11 +33,11 @@ pipeline {
         stage('build and push to nexus') {
             steps {
                  script {
-                            #build
+                            //build
                             sh"  cd webapp"
                             sh" npm install"
                             sh "npm run build"
-                            #store the artifact
+                            //store the artifact
                             sh "zip lms.zip -r dist/*"
                             sh "curl -v -u admin:awil123456 --upload-file lms.zip http://35.86.175.8:8081/repository/lms/"
 
