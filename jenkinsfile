@@ -33,13 +33,17 @@ pipeline {
         stage('Build and Push to Nexus') {
             steps {
                 script {
+                    def packageJson = readFile('webapp/package.json')
+                    def json = readJSON text: packageJson
+                    env.VERSION = json.version
+
                     // Build
                     dir('webapp') {
                         sh 'npm install'
                         sh 'npm run build'
-                        // Store the artifact
-                        sh 'zip lms.zip -r dist/*'
-                        sh 'curl -v -u admin:awil123456 --upload-file lms.zip http://34.222.148.39:8081/repository/lms/'
+                        // Store the artifact with version tag
+                        sh "zip lms-${env.VERSION}.zip -r dist/*"
+                        sh "curl -v -u admin:awil123456 --upload-file lms-${env.VERSION}.zip http://34.222.148.39:8081/repository/lms/lms-${env.VERSION}.zip"
                     }
                 }
             }
