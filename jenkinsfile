@@ -95,7 +95,7 @@ pipeline {
             steps {
                 script {
                     // Run backend container for testing
-                    sh "docker run -d --name ${env.BACKEND_CONTAINER_NAME} -p 8080:8080 ${env.BACKEND_IMAGE_TAG}"
+                    sh "docker run -it --name ${env.BACKEND_CONTAINER_NAME} -p 8080:8080 ${env.BACKEND_IMAGE_TAG} /bin/bash"
                 }
             }
         }
