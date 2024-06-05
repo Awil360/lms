@@ -6,7 +6,6 @@ pipeline {
         FRONTEND_IMAGE = "${DOCKER_REGISTRY}/lms-front"
         BACKEND_IMAGE = "${DOCKER_REGISTRY}/lms-backend"
         DOCKER_CREDENTIALS_ID = 'lms-docker'
-        NEXUS_REPOSITORY_URL = 'http://34.222.148.39:8081/repository/lms/'
         NEXUS_CREDENTIALS_ID = 'nexus-id'
         POSTGRES_CONTAINER_NAME = 'lms-database'
         POSTGRES_PASSWORD = 'awil123456'
@@ -27,6 +26,22 @@ pipeline {
                         sonarsource/sonar-scanner-cli \
                         -Dsonar.projectKey=lms
                     '''
+                }
+            }
+        }
+
+        stage('build and push to nexus') {
+            steps {
+                 script {
+                            #build
+                            sh"  cd webapp"
+                            sh" npm install"
+                            sh "npm run build"
+                            #store the artifact
+                            sh "zip lms.zip -r dist/*"
+                            sh "curl -v -u admin:awil123456 --upload-file lms.zip http://35.86.175.8:8081/repository/lms/"
+
+                    }
                 }
             }
         }
@@ -91,15 +106,7 @@ pipeline {
         }
 
 
-         stage('Push Backend Docker Image to Nexus') {
-            steps {
-                script {
-                    docker.withRegistry(env.NEXUS_REPOSITORY_URL, env.NEXUS_CREDENTIALS_ID) {
-                        docker.image(env.BACKEND_IMAGE_TAG).push()
-                    }
-                }
-            }
-        }
+         
 
         stage('Build Frontend Docker Image') {
             steps {
@@ -118,17 +125,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Push Frontend Docker Image to Nexus') {
-            steps {
-                script {
-                    docker.withRegistry(env.NEXUS_REPOSITORY_URL, env.NEXUS_CREDENTIALS_ID) {
-                        docker.image(env.FRONTEND_IMAGE_TAG).push()
-                    }
-                }
-            }
-        }
-
 
         stage('Run Backend Container') {
             steps {
@@ -166,4 +162,4 @@ pipeline {
             }
         }
     }
-}
+
