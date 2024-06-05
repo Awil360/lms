@@ -14,22 +14,20 @@ pipeline {
     }
 
     stages {
-        stage('code analysis') {
+        stage('Code Analysis') {
             steps {
                 script {
-
-                 sh '''
+                    sh '''
                         sudo docker run --rm \
                         -e SONAR_HOST_URL="http://34.222.148.39:9000" \
                         -e SONAR_TOKEN="sqp_ba55720494d3b95c572b1182d6705cfaec2f34e4" \
                         -v "$PWD:/usr/src" \
                         sonarsource/sonar-scanner-cli \
                         -Dsonar.projectKey=lms
-                }            '''
-             }
+                    '''
+                }
+            }
         }
-
-
 
         stage('Start PostgreSQL Container') {
             steps {
@@ -110,17 +108,16 @@ pipeline {
 
         stage('Run Backend Container') {
             steps {
-             script {
-            // Run backend container for testing
-                 sh """
-                     docker run -d --name ${env.BACKEND_CONTAINER_NAME} \
-                     -e DATABASE_URL=${env.DATABASE_URL} \
-                      -p 8080:8080 ${env.BACKEND_IMAGE_TAG}
-                   """
+                script {
+                    // Run backend container for testing
+                    sh """
+                        docker run -d --name ${env.BACKEND_CONTAINER_NAME} \
+                        -e DATABASE_URL=${env.DATABASE_URL} \
+                        -p 8080:8080 ${env.BACKEND_IMAGE_TAG}
+                    """
+                }
+            }
         }
-    }
-}
-
 
         stage('Run Frontend Container') {
             steps {
@@ -132,17 +129,16 @@ pipeline {
         }
     }
 
-        post {
-            always {
-            //Clean up PostgreSQL container
-                script {
-                    sh "docker stop ${env.POSTGRES_CONTAINER_NAME} || true"
-                    sh "docker rm ${env.POSTGRES_CONTAINER_NAME} || true"
-                    sh "docker stop ${env.BACKEND_CONTAINER_NAME} || true"
-                    sh "docker rm ${env.BACKEND_CONTAINER_NAME} || true"
-                    sh "docker stop ${env.FRONTEND_CONTAINER_NAME} || true"
-                    sh "docker rm ${env.FRONTEND_CONTAINER_NAME} || true"
-                }
+    post {
+        always {
+            // Clean up PostgreSQL container
+            script {
+                sh "docker stop ${env.POSTGRES_CONTAINER_NAME} || true"
+                sh "docker rm ${env.POSTGRES_CONTAINER_NAME} || true"
+                sh "docker stop ${env.BACKEND_CONTAINER_NAME} || true"
+                sh "docker rm ${env.BACKEND_CONTAINER_NAME} || true"
+                sh "docker stop ${env.FRONTEND_CONTAINER_NAME} || true"
+                sh "docker rm ${env.FRONTEND_CONTAINER_NAME} || true"
             }
         }
     }
