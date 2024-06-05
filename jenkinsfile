@@ -14,6 +14,23 @@ pipeline {
     }
 
     stages {
+        stage('code analysis') {
+            steps {
+                script {
+
+                 sh '''
+                        sudo docker run --rm \
+                        -e SONAR_HOST_URL="http://34.222.148.39:9000" \
+                        -e SONAR_TOKEN="sqp_ba55720494d3b95c572b1182d6705cfaec2f34e4" \
+                        -v "$PWD:/usr/src" \
+                        sonarsource/sonar-scanner-cli \
+                        -Dsonar.projectKey=lms
+                }            '''
+             }
+        }
+
+
+
         stage('Start PostgreSQL Container') {
             steps {
                 script {
@@ -125,7 +142,8 @@ pipeline {
                     sh "docker rm ${env.BACKEND_CONTAINER_NAME} || true"
                     sh "docker stop ${env.FRONTEND_CONTAINER_NAME} || true"
                     sh "docker rm ${env.FRONTEND_CONTAINER_NAME} || true"
+                }
             }
-       }
-     }
+        }
+    }
 }
