@@ -101,7 +101,7 @@ pipeline {
             }
         }
 
-        stage('Push Backend Docker Image') {
+       /*  stage('Push Backend Docker Image') {
             steps {
                 script {
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
@@ -109,7 +109,7 @@ pipeline {
                     }
                 }
             }
-        }
+        } */
 
         /* stage('Build Frontend Docker Image') {
             steps {
