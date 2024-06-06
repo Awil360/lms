@@ -15,7 +15,7 @@ pipeline {
     }
 
     stages {
-        stage('Code Analysis') {
+        /* stage('Code Analysis') {
             steps {
                 script {
                     sh '''
@@ -28,9 +28,9 @@ pipeline {
                     '''
                 }
             }
-        }
+        } */
 
-        stage('Build and Push to Nexus') {
+        /* stage('Build and Push to Nexus') {
             steps {
                 script {
                     def packageJson = readFile('webapp/package.json')
@@ -47,7 +47,7 @@ pipeline {
                     }
                 }
             }
-        }
+        } */
 
         stage('Start PostgreSQL Container') {
             steps {
@@ -110,15 +110,15 @@ pipeline {
             }
         }
 
-        stage('Build Frontend Docker Image') {
+        /* stage('Build Frontend Docker Image') {
             steps {
                 script {
                     docker.build(env.FRONTEND_IMAGE_TAG, 'webapp')
                 }
             }
-        }
+        } */
 
-        stage('Push Frontend Docker Image') {
+       /*  stage('Push Frontend Docker Image') {
             steps {
                 script {
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
@@ -126,7 +126,7 @@ pipeline {
                     }
                 }
             }
-        }
+        } */
 
         stage('Run Backend Container') {
             steps {
@@ -141,7 +141,7 @@ pipeline {
             }
         }
 
-        stage('Run Frontend Container') {
+       /*  stage('Run Frontend Container') {
             steps {
                 script {
                     // Run frontend container for testing
@@ -149,7 +149,7 @@ pipeline {
                 }
             }
         }
-    }
+    } */
 
    /*  post {
         always {
@@ -165,4 +165,6 @@ pipeline {
         }
     }
 } */
+    
+    }       
 }
