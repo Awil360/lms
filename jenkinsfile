@@ -20,7 +20,7 @@ pipeline {
                 script {
                     sh '''
                         sudo docker run --rm \
-                        -e SONAR_HOST_URL="http://34.222.148.39:9000" \
+                        -e SONAR_HOST_URL="http://54.189.193.210:9000" \
                         -e SONAR_TOKEN="sqp_ba55720494d3b95c572b1182d6705cfaec2f34e4" \
                         -v "$PWD:/usr/src" \
                         sonarsource/sonar-scanner-cli \
@@ -43,7 +43,7 @@ pipeline {
                         sh 'npm run build'
                         // Store the artifact with version tag
                         sh "zip lms-${env.VERSION}.zip -r dist/*"
-                        sh "curl -v -u admin:awil123456 --upload-file lms-${env.VERSION}.zip http://34.222.148.39:8081/repository/lms/lms-${env.VERSION}.zip"
+                        sh "curl -v -u admin:awil123456 --upload-file lms-${env.VERSION}.zip http://54.189.193.210:8081/repository/lms/lms-${env.VERSION}.zip"
                     }
                 }
             }
@@ -149,7 +149,7 @@ pipeline {
         }
     }
 
-    post {
+   /*  post {
         always {
             // Clean up PostgreSQL container
             script {
@@ -162,4 +162,5 @@ pipeline {
             }
         }
     }
+} */
 }
