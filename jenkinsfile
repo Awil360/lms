@@ -94,8 +94,8 @@ pipeline {
                     // Ensure the DATABASE_URL is available during the build
                     withEnv(["DATABASE_URL=${env.DATABASE_URL}"]) {
                         writeFile file: 'api/.env', text: "  
-                        MODE="production"
-                        PORT="8080"
+                        MODE=production
+                        PORT=8080
                         DATABASE_URL=${env.DATABASE_URL}"
                         docker.build(env.BACKEND_IMAGE_TAG, 'api')
                     }
