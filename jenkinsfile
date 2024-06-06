@@ -93,7 +93,10 @@ pipeline {
                     env.DATABASE_URL = "postgresql://postgres:${env.POSTGRES_PASSWORD}@${dbIp}:5432/postgres"
                     // Ensure the DATABASE_URL is available during the build
                     withEnv(["DATABASE_URL=${env.DATABASE_URL}"]) {
-                        writeFile file: 'api/.env', text: "DATABASE_URL=${env.DATABASE_URL}"
+                        writeFile file: 'api/.env', text: "  
+                        MODE="production"
+                        PORT="8080"
+                        DATABASE_URL=${env.DATABASE_URL}"
                         docker.build(env.BACKEND_IMAGE_TAG, 'api')
                     }
                 }
