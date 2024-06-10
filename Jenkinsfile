@@ -40,7 +40,7 @@ pipeline {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Build Docker Image stage started")
-                    docker.build("${env.DOCKER_IMAGE}:${env.APP_VERSION},'api'")
+                    docker.build("${env.DOCKER_IMAGE}:${env.APP_VERSION}",'api')
                     slackSend(channel: SLACK_CHANNEL, message: "Build Docker Image stage completed with image tag ${env.APP_VERSION}")
                 }
             }
