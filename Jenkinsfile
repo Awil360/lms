@@ -10,6 +10,7 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'lms-docker'
         SLACK_CHANNEL = '#devops-projects'
         SLACK_CREDENTIALS_ID = 'Secret text' // Replace with the actual credentials ID for your Slack token
+        AWS_CREDENTIALS_ID = 'aws-credentials' // Replace with your actual AWS credentials ID
     }
 
     stages {
@@ -29,6 +30,8 @@ pipeline {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage started")
+                }
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                     sh """
                     aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
                     kubectl apply -f ${WORKSPACE}/api/pg-secret.yml
@@ -36,12 +39,15 @@ pipeline {
                     kubectl apply -f ${WORKSPACE}/api/pg-service.yml
                     kubectl apply -f ${WORKSPACE}/api/be-configmap.yml
                     """
+                }
+                script {
                     slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage completed")
                 }
             }
         }
     }
 }
+
 
 //         stage('Read Version') {
 //             steps {
