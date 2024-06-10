@@ -49,7 +49,7 @@ pipeline {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Push Docker Image stage started")
-                    docker.withRegistry('https://hub.docker.com/repository/docker/awil360', 'docker-hub-credentials') {
+                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
                         docker.image("${env.DOCKER_IMAGE}:${env.APP_VERSION}").push()
                     }
                     slackSend(channel: SLACK_CHANNEL, message: "Push Docker Image stage completed")
