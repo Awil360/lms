@@ -121,7 +121,7 @@ pipeline {
                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push frontend Image stage started")
                     docker.build("${FRONTEND_IMAGE_TAG}:${env.VERSION}", 'webapp')
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
-                        docker.image("${FRONTEND_IMAGE_TAG}:${env.VERSION}").push()
+                        docker.image("${FRONTEND_IMAGE}:${env.VERSION}").push()
                     }
                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push frontend Image stage completed")
                 }
