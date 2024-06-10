@@ -130,7 +130,7 @@ pipeline {
         }
 
 
-    stage('Apply frontend Deployment') {
+        stage('Apply frontend Deployment') {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Apply frontend Deployment stage started")
