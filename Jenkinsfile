@@ -45,53 +45,53 @@ pipeline {
                 }
             }
         }
+
+        stage('Read Version') {
+            steps {
+                script {
+                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started")
+                    def packageJson = readJSON file: 'webapp/package.json'
+                    env.VERSION = packageJson.version
+                    env.BACKEND_IMAGE_TAG = "${env.BACKEND_IMAGE}:${env.VERSION}"
+                    env.FRONTEND_IMAGE_TAG = "${env.FRONTEND_IMAGE}:${env.VERSION}"
+                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage completed with version ${env.VERSION}")
+                }
+            }
+        }
+
+
+        stage('Build and Push Backend Image') {
+            steps {
+                script {
+                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push Backend Image stage started")
+                    docker.build("${BACKEND_IMAGE}:${env.VERSION}", 'api')
+                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
+                        docker.image("${BACKEND_IMAGE}:${env.VERSION}").push()
+                    }
+                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push Backend Image stage completed")
+                }
+            }
+        }
+
+        stage('Apply Backend Deployment') {
+            steps {
+                script {
+                    slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage started")
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
+                        sh """
+                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
+                        kubectl apply -f ${WORKSPACE}/api/be-deployment.yml
+                        kubectl apply -f ${WORKSPACE}/api/be-service.yml
+                        """
+                    }
+                    slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage completed")
+                }
+            }
+        }
     }
 }
+    
 
-//         stage('Read Version') {
-//             steps {
-//                 script {
-//                     slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started")
-//                     def packageJson = readJSON file: 'webapp/package.json'
-//                     env.VERSION = packageJson.version
-//                     env.BACKEND_IMAGE_TAG = "${env.BACKEND_IMAGE}:${env.VERSION}"
-//                     env.FRONTEND_IMAGE_TAG = "${env.FRONTEND_IMAGE}:${env.VERSION}"
-//                     slackSend(channel: SLACK_CHANNEL, message: "Read Version stage completed with version ${env.VERSION}")
-//                 }
-//             }
-//         }
-
-
-//         stage('Build and Push Backend Image') {
-//             steps {
-//                 script {
-//                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push Backend Image stage started")
-//                     docker.build("${BACKEND_IMAGE}:${env.VERSION}", 'api')
-//                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
-//                         docker.image("${BACKEND_IMAGE}:${env.VERSION}").push()
-//                     }
-//                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push Backend Image stage completed")
-//                 }
-//             }
-//         }
-
-//         stage('Apply Backend Deployment') {
-//             steps {
-//                 script {
-//                     slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage started")
-//                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
-//                         sh """
-//                         aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
-//                         kubectl apply -f ${WORKSPACE}/api/be-deployment.yml
-//                         kubectl apply -f ${WORKSPACE}/api/be-service.yml
-//                         """
-//                     }
-//                     slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage completed")
-//                 }
-//             }
-//         }
-//     }
-// }
 
 
 
