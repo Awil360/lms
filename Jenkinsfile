@@ -5,6 +5,7 @@ pipeline {
         EKS_CLUSTER_NAME = 'production-cluster'
         AWS_REGION = 'us-west-2'
         DOCKER_IMAGE = 'awil360/lms'
+        DOCKER_CREDENTIALS_ID = 'lms-docker'
         SLACK_CHANNEL = '#devops-projects'
         SLACK_CREDENTIALS_ID = 'Secret text'
     }
@@ -33,31 +34,30 @@ pipeline {
                 }
             }
         }
+
+        stage('Build backend Docker Image') {
+            steps {
+                script {
+                    slackSend(channel: SLACK_CHANNEL, message: "Build Docker Image stage started")
+                    docker.build("${env.DOCKER_IMAGE}:${env.APP_VERSION},'api'")
+                    slackSend(channel: SLACK_CHANNEL, message: "Build Docker Image stage completed with image tag ${env.APP_VERSION}")
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    slackSend(channel: SLACK_CHANNEL, message: "Push Docker Image stage started")
+                    docker.withRegistry('https://hub.docker.com/repository/docker/awil360', 'docker-hub-credentials') {
+                        docker.image("${env.DOCKER_IMAGE}:${env.APP_VERSION}").push()
+                    }
+                    slackSend(channel: SLACK_CHANNEL, message: "Push Docker Image stage completed")
+                }
+            }
+        }
     }
 }
-
-//         stage('Build Docker Image') {
-//             steps {
-//                 script {
-//                     slackSend(channel: SLACK_CHANNEL, message: "Build Docker Image stage started")
-//                     docker.build("${env.DOCKER_IMAGE}:${env.APP_VERSION}")
-//                     slackSend(channel: SLACK_CHANNEL, message: "Build Docker Image stage completed with image tag ${env.APP_VERSION}")
-//                 }
-//             }
-//         }
-
-//         stage('Push Docker Image') {
-//             steps {
-//                 script {
-//                     slackSend(channel: SLACK_CHANNEL, message: "Push Docker Image stage started")
-//                     docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
-//                         docker.image("${env.DOCKER_IMAGE}:${env.APP_VERSION}").push()
-//                         docker.image("${env.DOCKER_IMAGE}:${env.APP_VERSION}").push('latest')
-//                     }
-//                     slackSend(channel: SLACK_CHANNEL, message: "Push Docker Image stage completed")
-//                 }
-//             }
-//         }
 
 //         stage('Deploy to EKS') {
 //             steps {
