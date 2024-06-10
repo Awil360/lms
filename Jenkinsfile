@@ -27,7 +27,7 @@ pipeline {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started")
-                    def packageJson = readJSON file: 'package.json'
+                    def packageJson = readJSON file: 'webapp/package.json'
                     env.APP_VERSION = packageJson.version
                     slackSend(channel: SLACK_CHANNEL, message: "Read Version stage completed with version ${env.APP_VERSION}")
                 }
