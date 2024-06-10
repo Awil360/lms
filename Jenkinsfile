@@ -59,6 +59,7 @@ pipeline {
             }
         }
 
+
         stage('Build and Push Backend Image') {
             steps {
                 script {
@@ -88,6 +89,7 @@ pipeline {
             }
         }
 
+
         stage('Update Frontend .env') {
             steps {
                 script {
@@ -113,12 +115,12 @@ pipeline {
                 }
             }
         }
-
+    
         stage('Build and Push frontend Image') {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push frontend Image stage started")
-                    docker.build("${FRONTEND_IMAGE_TAG}:${env.VERSION}", 'webapp')
+                    docker.build("${FRONTEND_IMAGE}:${env.VERSION}", 'webapp')
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
                         docker.image("${FRONTEND_IMAGE}:${env.VERSION}").push()
                     }
@@ -126,6 +128,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Apply frontend Deployment') {
             steps {
@@ -142,29 +145,30 @@ pipeline {
                 }
             }
         }
-
-        stage('Production Approval') {
-            steps {
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Waiting for production approval", color: '#FFFF00')
-                    input message: 'Approve deployment to production?', ok: 'Deploy'
-                    slackSend(channel: SLACK_CHANNEL, message: "Production deployment approved", color: '#00FF00')
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            script {
-                slackSend(channel: SLACK_CHANNEL, message: "Pipeline completed successfully", color: '#00FF00')
-            }
-        }
-
-        failure {
-            script {
-                slackSend(channel: SLACK_CHANNEL, message: "Pipeline failed", color: '#FF0000')
-            }
-        }
     }
 }
+//         stage('Production Approval') {
+//             steps {
+//                 script {
+//                     slackSend(channel: SLACK_CHANNEL, message: "Waiting for production approval", color: '#FFFF00')
+//                     input message: 'Approve deployment to production?', ok: 'Deploy'
+//                     slackSend(channel: SLACK_CHANNEL, message: "Production deployment approved", color: '#00FF00')
+//                 }
+//             }
+//         }
+//     }
+
+//  post {
+//         success {
+//             script {
+//                 slackSend(channel: SLACK_CHANNEL, message: "Pipeline completed successfully", color: '#00FF00')
+//             }
+//         }
+
+//         failure {
+//             script {
+//                 slackSend(channel: SLACK_CHANNEL, message: "Pipeline failed", color: '#FF0000')
+//             }
+//         }
+//     }
+// }
