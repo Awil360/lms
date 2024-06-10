@@ -15,7 +15,7 @@ spec:
       containers:
         - name: backend-container
           image: awil360/lms-be
-          imagepullpolicy: Always
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           envFrom:
@@ -24,6 +24,6 @@ spec:
           env:
             - name: DB_PASSWORD
               valueFrom:
-                secretkeyRef:
+                secretKeyRef:
                   name: pg-secret
                   key: password
