@@ -15,7 +15,7 @@ spec:
       containers:
         - name: frontend-container
           image: awil360/lms-fe
-          imagepullpolicy: Always
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
 
