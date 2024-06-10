@@ -5,7 +5,8 @@ pipeline {
         EKS_CLUSTER_NAME = 'production-cluster'
         AWS_REGION = 'us-west-2'
         DOCKER_REGISTRY = 'awil360'
-        DOCKER_IMAGE = 'awil360/lms'
+        FRONTEND_IMAGE = "${DOCKER_REGISTRY}/lms-front"
+        BACKEND_IMAGE = "${DOCKER_REGISTRY}/lms-backend"
         DOCKER_CREDENTIALS_ID = 'lms-docker'
         SLACK_CHANNEL = '#devops-projects'
         SLACK_CREDENTIALS_ID = 'Secret text'
@@ -30,8 +31,10 @@ pipeline {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started")
                     def packageJson = readJSON file: 'webapp/package.json'
-                    env.APP_VERSION = packageJson.version
-                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage completed with version ${env.APP_VERSION}")
+                    env.VERSION = packageJson.version
+                    env.BACKEND_IMAGE_TAG = "${env.BACKEND_IMAGE}:${env.VERSION}"
+                    env.FRONTEND_IMAGE_TAG = "${env.FRONTEND_IMAGE}:${env.VERSION}"
+                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage completed with version ${env.VERSION}")
                 }
             }
         }
@@ -40,7 +43,7 @@ pipeline {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Build  backend Docker Image stage started")
-                    docker.build("${env.DOCKER_IMAGE}:${env.APP_VERSION}",'api')
+                    docker.build(env.BACKEND_IMAGE_TAG, 'api')
                     slackSend(channel: SLACK_CHANNEL, message: "Build backend Docker Image stage completed with image tag ${env.APP_VERSION}")
                 }
             }
@@ -51,7 +54,7 @@ pipeline {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Push  backend Docker Image stage started")
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
-                        docker.image("${env.DOCKER_IMAGE}:${env.APP_VERSION}").push()
+                         docker.image(env.BACKEND_IMAGE_TAG).push()
                     }
                     slackSend(channel: SLACK_CHANNEL, message: "Push backend Docker Image stage completed")
                 }
@@ -65,7 +68,7 @@ pipeline {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Build frontend Docker Image stage started")
-                    docker.build("${env.DOCKER_IMAGE}:${env.APP_VERSION}",'webapp')
+                    docker.build(env.FRONTEND_IMAGE_TAG, 'webapp')
                     slackSend(channel: SLACK_CHANNEL, message: "Build frontend Docker Image stage completed with image tag ${env.APP_VERSION}")
                 }
             }
@@ -76,7 +79,7 @@ pipeline {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Push frontend  Docker Image stage started")
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
-                        docker.image("${env.DOCKER_IMAGE}:${env.APP_VERSION}").push()
+                       docker.image(env.FRONTEND_IMAGE_TAG).push()
                     }
                     slackSend(channel: SLACK_CHANNEL, message: "Push frontend Docker Image stage completed")
                 }
