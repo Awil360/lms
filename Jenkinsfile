@@ -115,42 +115,38 @@ pipeline {
                 }
             }
         }
+    
+        stage('Build and Push frontend Image') {
+            steps {
+                script {
+                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push frontend Image stage started")
+                    docker.build("${FRONTEND_IMAGE}:${env.VERSION}", 'webapp')
+                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
+                        docker.image("${FRONTEND_IMAGE}:${env.VERSION}").push()
+                    }
+                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push frontend Image stage completed")
+                }
+            }
+        }
+
+
+    stage('Apply frontend Deployment') {
+            steps {
+                script {
+                    slackSend(channel: SLACK_CHANNEL, message: "Apply frontend Deployment stage started")
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
+                        sh """
+                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
+                        kubectl apply -f ${WORKSPACE}/webapp/fe-deployment.yml
+                        kubectl apply -f ${WORKSPACE}/webapp/fe-service.yml
+                        """
+                    }
+                    slackSend(channel: SLACK_CHANNEL, message: "Apply frontend Deployment stage completed")
+                }
+            }
+        }
     }
 }
-//         stage('Build and Push frontend Image') {
-//             steps {
-//                 script {
-//                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push frontend Image stage started")
-//                     docker.build("${FRONTEND_IMAGE_TAG}:${env.VERSION}", 'webapp')
-//                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
-//                         docker.image("${FRONTEND_IMAGE}:${env.VERSION}").push()
-//                     }
-//                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push frontend Image stage completed")
-//                 }
-//             }
-//         }
-
-
-//     stage('Apply frontend Deployment') {
-//             steps {
-//                 script {
-//                     slackSend(channel: SLACK_CHANNEL, message: "Apply frontend Deployment stage started")
-//                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
-//                         sh """
-//                         aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
-//                         kubectl apply -f ${WORKSPACE}/webapp/fe-deployment.yml
-//                         kubectl apply -f ${WORKSPACE}/webapp/fe-service.yml
-//                         """
-//                     }
-//                     slackSend(channel: SLACK_CHANNEL, message: "Apply frontend Deployment stage completed")
-//                 }
-//             }
-//         }
-//     }
-// }
-
-
-
 //         stage('Production Approval') {
 //             steps {
 //                 script {
@@ -160,7 +156,6 @@ pipeline {
 //                 }
 //             }
 //         }
-//     }
 
 //     post {
 //         success {
@@ -175,4 +170,6 @@ pipeline {
 //             }
 //         }
 //     }
+//     }
 // }
+
