@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: backend-config-map
 data:
-    DB_HOST: postgres-cluster-ip
+    DB_HOST: postgres-cluster-ip-service
     DB_PORT: "5432"
     DB_USER: postgres
     DB_NAME: postgres
