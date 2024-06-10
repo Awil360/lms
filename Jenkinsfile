@@ -4,6 +4,7 @@ pipeline {
     environment {
         EKS_CLUSTER_NAME = 'production-cluster'
         AWS_REGION = 'us-west-2'
+        DOCKER_REGISTRY = 'awil360'
         DOCKER_IMAGE = 'awil360/lms'
         DOCKER_CREDENTIALS_ID = 'lms-docker'
         SLACK_CHANNEL = '#devops-projects'
