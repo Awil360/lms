@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        EKS_CLUSTER_NAME = 'production-cluster'
+        EKS_CLUSTER_NAME = 'lms-cluster'
         AWS_REGION = 'us-west-2'
         DOCKER_REGISTRY = 'awil360'
         FRONTEND_IMAGE = "${DOCKER_REGISTRY}/lms-front"
         BACKEND_IMAGE = "${DOCKER_REGISTRY}/lms-backend"
         DOCKER_CREDENTIALS_ID = 'lms-docker'
         SLACK_CHANNEL = '#devops-projects'
-        SLACK_CREDENTIALS_ID = 'Secret text'
+        SLACK_CREDENTIALS_ID = 'Secret text' // Replace with the actual credentials ID for your Slack token
     }
 
     stages {
@@ -24,87 +24,91 @@ pipeline {
                 }
             }
         }
-    
 
-        stage('Read Version') {
+        stage('Deploy Database and ConfigMap') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started")
-                    def packageJson = readJSON file: 'webapp/package.json'
-                    env.VERSION = packageJson.version
-                    env.BACKEND_IMAGE_TAG = "${env.BACKEND_IMAGE}:${env.VERSION}"
-                    env.FRONTEND_IMAGE_TAG = "${env.FRONTEND_IMAGE}:${env.VERSION}"
-                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage completed with version ${env.VERSION}")
-                }
-            }
-        }
-
-        stage('Build backend Docker Image') {
-            steps {
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Build  backend Docker Image stage started")
-                    docker.build(env.BACKEND_IMAGE_TAG, 'api')
-                    slackSend(channel: SLACK_CHANNEL, message: "Build backend Docker Image stage completed with image tag ${env.APP_VERSION}")
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Push  backend Docker Image stage started")
-                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
-                         docker.image(env.BACKEND_IMAGE_TAG).push()
-                    }
-                    slackSend(channel: SLACK_CHANNEL, message: "Push backend Docker Image stage completed")
-                }
-            }
-        }
-
-
-
-
-        stage('Build frontend Docker Image') {
-            steps {
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Build frontend Docker Image stage started")
-                    docker.build(env.FRONTEND_IMAGE_TAG, 'webapp')
-                    slackSend(channel: SLACK_CHANNEL, message: "Build frontend Docker Image stage completed with image tag ${env.APP_VERSION}")
-                }
-            }
-        }
-
-        stage('Push frontend Docker Image') {
-            steps {
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Push frontend  Docker Image stage started")
-                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
-                       docker.image(env.FRONTEND_IMAGE_TAG).push()
-                    }
-                    slackSend(channel: SLACK_CHANNEL, message: "Push frontend Docker Image stage completed")
+                    slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage started")
+                    sh """
+                    aws eks update-kubeconfig --region ${us-west-2} --name ${lms-cluster}
+                    kubectl apply -f ${WORKSPACE}/api/pg-secret.yml
+                    kubectl apply -f ${WORKSPACE}/api/pg-deployment.yml
+                    kubectl apply -f ${WORKSPACE}/api/pg-service.yml
+                    kubectl apply -f ${WORKSPACE}/api/be-configmap.yml
+                    """
+                    slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage completed")
                 }
             }
         }
     }
 }
-
-
-
-
-
-
-    
-
-
-//         stage('Deploy to EKS') {
+//         stage('Read Version') {
 //             steps {
 //                 script {
-//                     slackSend(channel: SLACK_CHANNEL, message: "Deploy to EKS stage started")
+//                     slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started")
+//                     def packageJson = readJSON file: 'webapp/package.json'
+//                     env.VERSION = packageJson.version
+//                     env.BACKEND_IMAGE_TAG = "${env.BACKEND_IMAGE}:${env.VERSION}"
+//                     env.FRONTEND_IMAGE_TAG = "${env.FRONTEND_IMAGE}:${env.VERSION}"
+//                     slackSend(channel: SLACK_CHANNEL, message: "Read Version stage completed with version ${env.VERSION}")
+//                 }
+//             }
+//         }
+
+//         stage('Build backend Docker Image') {
+//             steps {
+//                 script {
+//                     slackSend(channel: SLACK_CHANNEL, message: "Build backend Docker Image stage started")
+//                     docker.build(env.BACKEND_IMAGE_TAG, 'api')
+//                     slackSend(channel: SLACK_CHANNEL, message: "Build backend Docker Image stage completed with image tag ${env.VERSION}")
+//                 }
+//             }
+//         }
+
+//         stage('Push backend Docker Image') {
+//             steps {
+//                 script {
+//                     slackSend(channel: SLACK_CHANNEL, message: "Push backend Docker Image stage started")
+//                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
+//                         docker.image(env.BACKEND_IMAGE_TAG).push()
+//                     }
+//                     slackSend(channel: SLACK_CHANNEL, message: "Push backend Docker Image stage completed")
+//                 }
+//             }
+//         }
+
+//         stage('Build frontend Docker Image') {
+//             steps {
+//                 script {
+//                     slackSend(channel: SLACK_CHANNEL, message: "Build frontend Docker Image stage started")
+//                     docker.build(env.FRONTEND_IMAGE_TAG, 'webapp')
+//                     slackSend(channel: SLACK_CHANNEL, message: "Build frontend Docker Image stage completed with image tag ${env.VERSION}")
+//                 }
+//             }
+//         }
+
+//         stage('Push frontend Docker Image') {
+//             steps {
+//                 script {
+//                     slackSend(channel: SLACK_CHANNEL, message: "Push frontend Docker Image stage started")
+//                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
+//                         docker.image(env.FRONTEND_IMAGE_TAG).push()
+//                     }
+//                     slackSend(channel: SLACK_CHANNEL, message: "Push frontend Docker Image stage completed")
+//                 }
+//             }
+//         }
+
+//         stage('Deploy backend to EKS') {
+//             steps {
+//                 script {
+//                     slackSend(channel: SLACK_CHANNEL, message: "Deploy backend to EKS stage started")
 //                     sh """
-//                     aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
-//                     kubectl set image deployment/my-app my-app=${env.DOCKER_IMAGE}:${env.APP_VERSION}
+//                     aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
+//                     kubectl apply -f ${WORKSPACE}/api/be-deployment.yml
+//                     kubectl apply -f ${WORKSPACE}/api/be-service.yml
 //                     """
-//                     slackSend(channel: SLACK_CHANNEL, message: "Deploy to EKS stage completed")
+//                     slackSend(channel: SLACK_CHANNEL, message: "Deploy backend to EKS stage completed")
 //                 }
 //             }
 //         }
