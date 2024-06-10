@@ -21,19 +21,20 @@ pipeline {
                 }
             }
         }
+    
+
+        stage('Read Version') {
+            steps {
+                script {
+                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started")
+                    def packageJson = readJSON file: 'package.json'
+                    env.APP_VERSION = packageJson.version
+                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage completed with version ${env.APP_VERSION}")
+                }
+            }
+        }
     }
 }
-
-//         stage('Read Version') {
-//             steps {
-//                 script {
-//                     slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started")
-//                     def packageJson = readJSON file: 'package.json'
-//                     env.APP_VERSION = packageJson.version
-//                     slackSend(channel: SLACK_CHANNEL, message: "Read Version stage completed with version ${env.APP_VERSION}")
-//                 }
-//             }
-//         }
 
 //         stage('Build Docker Image') {
 //             steps {
