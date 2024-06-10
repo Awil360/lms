@@ -30,7 +30,7 @@ pipeline {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage started")
                     sh """
-                    aws eks update-kubeconfig --region ${us-west-2} --name ${lms-cluster}
+                    aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
                     kubectl apply -f ${WORKSPACE}/api/pg-secret.yml
                     kubectl apply -f ${WORKSPACE}/api/pg-deployment.yml
                     kubectl apply -f ${WORKSPACE}/api/pg-service.yml
@@ -42,6 +42,7 @@ pipeline {
         }
     }
 }
+
 //         stage('Read Version') {
 //             steps {
 //                 script {
