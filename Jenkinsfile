@@ -139,27 +139,27 @@ pipeline {
         }
     }
 }
-        stage('Production Approval') {
-            steps {
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Waiting for production approval", color: '#FFFF00')
-                    input message: 'Approve deployment to production?', ok: 'Deploy'
-                    slackSend(channel: SLACK_CHANNEL, message: "Production deployment approved", color: '#00FF00')
-                }
-            }
-        }
+//         stage('Production Approval') {
+//             steps {
+//                 script {
+//                     slackSend(channel: SLACK_CHANNEL, message: "Waiting for production approval", color: '#FFFF00')
+//                     input message: 'Approve deployment to production?', ok: 'Deploy'
+//                     slackSend(channel: SLACK_CHANNEL, message: "Production deployment approved", color: '#00FF00')
+//                 }
+//             }
+//         }
     
 
- post {
-        success {
-            script {
-                slackSend(channel: SLACK_CHANNEL, message: "Pipeline completed successfully", color: '#00FF00')
-            }
-        }
+//  post {
+//         success {
+//             script {
+//                 slackSend(channel: SLACK_CHANNEL, message: "Pipeline completed successfully", color: '#00FF00')
+//             }
+//         }
 
-        failure {
-            script {
-                slackSend(channel: SLACK_CHANNEL, message: "Pipeline failed", color: '#FF0000')
-            }
-        }
-    }
+//         failure {
+//             script {
+//                 slackSend(channel: SLACK_CHANNEL, message: "Pipeline failed", color: '#FF0000')
+//             }
+//         }
+//     }
