@@ -140,29 +140,53 @@ pipeline {
                 }
             }
         }
-
-        stage('Production Approval') {
-            steps {
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Waiting for production approval", color: '#FFFF00')
-                    input message: 'Approve deployment to production?', ok: 'Deploy'
-                    slackSend(channel: SLACK_CHANNEL, message: "Production deployment approved", color: '#00FF00')
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            // Send build logs to Slack on success
-            slackSend channel: '#your-slack-channel', message: currentBuild.rawBuild.getLog(1000, false)
-        }
-        failure {
-            // Send build logs to Slack on failure
-            slackSend channel: '#your-slack-channel', message: currentBuild.rawBuild.getLog(1000, false)
-        }
     }
 }
+
+//          stage('Approval') {
+//             steps {
+//                  script{
+//                 timeout(time: 5,unit: "MINUTES"){
+//                 slackSend channel: ' team-updates', message: "slackSend 'started ${env.JOB_NAME}  (http://54.218.32.166:8080/job/lms-deployment-pipeline/${env.BUILD_NUMBER}/)'", teamDomain: 'devops-rkv5493', tokenCredentialId: 'Secret text'
+//                 input message:'Approve to Deploy',ok: 'Yes'
+//             }
+//         }
+//             slackSend channel: 'eks', color: '#439FE0', message: 'request to build approved', teamDomain: 'devops-rkv5493', tokenCredentialId: 'Secret text'
+//     }
+// }
+//         stage('nofity after approval') {
+//             steps {
+//                slackSend channel: 'eks', color: '#439FE0', message: 'slackSend "started LMS production"', teamDomain: 'devops-rkv5493', tokenCredentialId: 'Secret text'
+//             }
+//         }
+
+//         post {
+//         always {
+//             script {
+//                 def consoleOutput = ""
+//                 try {
+//                     // Get console output from current build
+//                     def logFile = currentBuild.rawBuild.getLog(1000) // Change 1000 to number of lines you want to fetch
+//                     consoleOutput = logFile.join('\n')
+//                     // Send console output to Slack
+//                     slackSend(
+//                         color: '#439FE0',
+//                         message: "Build Console Output:\n```${consoleOutput}```",
+//                     channel: 'social',
+//                     teamDomain: 'jenkinsnotifi-beh9943',
+//                     tokenCredentialId: 'Secret text'
+//                     )
+                     
+//             }       catch (Exception e) {
+//                       println("Failed to read console output: ${e.message}")
+//         }
+//     }
+//         }
+//         }
+
+    
+
+   
 
 
 
