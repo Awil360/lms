@@ -138,7 +138,7 @@ pipeline {
     }
 }
 
-       stage('Production Approval') {
+        stage('Production Approval') {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Waiting for production approval", color: '#FFFF00')
@@ -146,10 +146,7 @@ pipeline {
                     slackSend(channel: SLACK_CHANNEL, message: "Production deployment approved", color: '#00FF00')
                 }
             }
-}
-
-    
-
+        }
  post {
         success {
             script {
