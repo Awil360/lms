@@ -135,8 +135,6 @@ pipeline {
                 }
             }
         }
-    }
-}
 
         stage('Production Approval') {
             steps {
@@ -147,16 +145,19 @@ pipeline {
                 }
             }
         }
- post {
-        success {
-            script {
-                slackSend(channel: SLACK_CHANNEL, message: "Pipeline completed successfully", color: '#00FF00')
-            }
-        }
-
-        failure {
-            script {
-                slackSend(channel: SLACK_CHANNEL, message: "Pipeline failed", color: '#FF0000')
-            }
-        }
     }
+}
+
+//  post {
+//         success {
+//             script {
+//                 slackSend(channel: SLACK_CHANNEL, message: "Pipeline completed successfully", color: '#00FF00')
+//             }
+//         }
+
+//         failure {
+//             script {
+//                 slackSend(channel: SLACK_CHANNEL, message: "Pipeline failed", color: '#FF0000')
+//             }
+//         }
+//     }
