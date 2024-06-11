@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   name: backend-config-map
 data:
+    BACKEND_URL: "http://lms-be-service:3000"
     DB_HOST: postgres-cluster-ip-service
     DB_PORT: "5432"
     DB_USER: postgres

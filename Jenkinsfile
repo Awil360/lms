@@ -14,6 +14,25 @@ pipeline {
     }
 
     stages {
+        stage('Code Analysis') {
+            steps {
+                script {
+
+                    slackSend(channel: SLACK_CHANNEL, message: "code analysis stage started")
+
+                    sh '''
+                        sudo docker run --rm \
+                        -e SONAR_HOST_URL="http://54.218.32.166:9000" \
+                        -e SONAR_TOKEN="sqp_ba55720494d3b95c572b1182d6705cfaec2f34e4" \
+                        -v "$PWD:/usr/src" \
+                        sonarsource/sonar-scanner-cli \ 
+                        -Dsonar.projectKey=lms
+                    '''
+                    slackSend(channel: SLACK_CHANNEL, message: "code analysis stage completed")
+
+                }
+            }
+        }
         stage('Checkout') {
             steps {
                 script {
@@ -85,33 +104,6 @@ pipeline {
                         """
                     }
                     slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage completed")
-                }
-            }
-        }
-
-
-        stage('Update Frontend .env') {
-            steps {
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Update Frontend .env stage started")
-                }
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
-                    script {
-                        def lbUrl = sh(
-                            script: """
-                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
-                            kubectl get svc lms-be-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-                            """,
-                            returnStdout: true
-                        ).trim()
-
-                        def envFile = readFile 'webapp/.env'
-                        envFile = envFile.replaceAll(/REACT_APP_BACKEND_URL=.*/, "REACT_APP_BACKEND_URL=http://${lbUrl}:3000")
-                        writeFile file: 'webapp/.env', text: envFile
-                    }
-                }
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Update Frontend .env stage completed")
                 }
             }
         }

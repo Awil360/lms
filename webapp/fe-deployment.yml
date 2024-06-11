@@ -18,4 +18,9 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 80
-
+           env:
+              - name: BACKEND_URL
+                valueFrom:
+                  configMapKeyRef:
+                    name: backend-config-map
+                    key: BACKEND_URL
