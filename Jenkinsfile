@@ -155,11 +155,11 @@ pipeline {
     post {
         success {
             // Send build logs to Slack on success
-            slackSend channel: '#your-slack-channel', message: currentBuild.rawBuild.getLog(1000)
+            slackSend channel: '#your-slack-channel', message: currentBuild.rawBuild.getLog(1000, false)
         }
         failure {
             // Send build logs to Slack on failure
-            slackSend channel: '#your-slack-channel', message: currentBuild.rawBuild.getLog(1000)
+            slackSend channel: '#your-slack-channel', message: currentBuild.rawBuild.getLog(1000, false)
         }
     }
 }
