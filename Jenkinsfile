@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -95,13 +96,15 @@ pipeline {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage started")
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
-                        sh """
-                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
-                            kubectl apply -f ${WORKSPACE}/api/be-deployment.yml
-                            kubectl apply -f ${WORKSPACE}/api/be-service.yml
-                        """
-                    }
+                }
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
+                    sh """
+                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
+                        kubectl apply -f ${WORKSPACE}/api/be-deployment.yml
+                        kubectl apply -f ${WORKSPACE}/api/be-service.yml
+                    """
+                }
+                script {
                     slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage completed")
                 }
             }
@@ -124,13 +127,15 @@ pipeline {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Apply Frontend Deployment stage started")
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
-                        sh """
-                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
-                            kubectl apply -f ${WORKSPACE}/webapp/fe-deployment.yml
-                            kubectl apply -f ${WORKSPACE}/webapp/fe-service.yml
-                        """
-                    }
+                }
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
+                    sh """
+                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
+                        kubectl apply -f ${WORKSPACE}/webapp/fe-deployment.yml
+                        kubectl apply -f ${WORKSPACE}/webapp/fe-service.yml
+                    """
+                }
+                script {
                     slackSend(channel: SLACK_CHANNEL, message: "Apply Frontend Deployment stage completed")
                 }
             }
@@ -146,18 +151,24 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            // Send build logs to Slack on success
+            slackSend channel: '#your-slack-channel', message: currentBuild.rawBuild.getLog(1000)
+        }
+        failure {
+            // Send build logs to Slack on failure
+            slackSend channel: '#your-slack-channel', message: currentBuild.rawBuild.getLog(1000)
+        }
+    }
 }
 
-//  post {
-//         success {
-//             script {
-//                 slackSend(channel: SLACK_CHANNEL, message: "Pipeline completed successfully", color: '#00FF00')
-//             }
-//         }
 
-//         failure {
-//             script {
-//                 slackSend(channel: SLACK_CHANNEL, message: "Pipeline failed", color: '#FF0000')
-//             }
-//         }
-//     }
+
+
+
+
+
+
+
