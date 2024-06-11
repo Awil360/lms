@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -18,7 +17,7 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "code analysis stage started")
+                    slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage started")
 
                     sh '''
                         sudo docker run --rm \
@@ -29,7 +28,7 @@ pipeline {
                         -Dsonar.projectKey=lms
                     '''
                     
-                    slackSend(channel: SLACK_CHANNEL, message: "code analysis stage completed")
+                    slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage completed")
                 }
             }
         }
@@ -138,6 +137,38 @@ pipeline {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Apply Frontend Deployment stage completed")
                 }
+            }
+        }
+
+        stage('Approval') {
+            steps {
+                script {
+                    timeout(time: 5, unit: 'MINUTES') {
+                        slackSend(
+                            channel: 'team-updates', 
+                            message: "Approval stage started for ${env.JOB_NAME} (<http://54.218.32.166:8080/job/lms-deployment-pipeline/${env.BUILD_NUMBER}/|Job Link>)", 
+                            tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
+                        )
+                        input message: 'Approve to Deploy', ok: 'Yes'
+                    }
+                    slackSend(
+                        channel: 'approve', 
+                        color: '#439FE0', 
+                        message: 'Request to build approved', 
+                        tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
+                    )
+                }
+            }
+        }
+
+        stage('Notify After Approval') {
+            steps {
+                slackSend(
+                    channel: 'approve', 
+                    color: '#439FE0', 
+                    message: 'LMS production deployment started', 
+                    tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
+                )
             }
         }
     }
