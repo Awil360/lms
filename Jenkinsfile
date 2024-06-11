@@ -17,7 +17,6 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 script {
-
                     slackSend(channel: SLACK_CHANNEL, message: "code analysis stage started")
 
                     sh '''
@@ -25,14 +24,15 @@ pipeline {
                         -e SONAR_HOST_URL="http://54.218.32.166:9000" \
                         -e SONAR_TOKEN="sqp_ba55720494d3b95c572b1182d6705cfaec2f34e4" \
                         -v "$PWD:/usr/src" \
-                        sonarsource/sonar-scanner-cli \ 
+                        sonarsource/sonar-scanner-cli \
                         -Dsonar.projectKey=lms
                     '''
+                    
                     slackSend(channel: SLACK_CHANNEL, message: "code analysis stage completed")
-
                 }
             }
         }
+
         stage('Checkout') {
             steps {
                 script {
@@ -52,11 +52,11 @@ pipeline {
                 }
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                     sh """
-                    aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
-                    kubectl apply -f ${WORKSPACE}/api/pg-secret.yml
-                    kubectl apply -f ${WORKSPACE}/api/pg-deployment.yml
-                    kubectl apply -f ${WORKSPACE}/api/pg-service.yml
-                    kubectl apply -f ${WORKSPACE}/api/be-configmap.yml
+                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
+                        kubectl apply -f ${WORKSPACE}/api/pg-secret.yml
+                        kubectl apply -f ${WORKSPACE}/api/pg-deployment.yml
+                        kubectl apply -f ${WORKSPACE}/api/pg-service.yml
+                        kubectl apply -f ${WORKSPACE}/api/be-configmap.yml
                     """
                 }
                 script {
@@ -71,13 +71,12 @@ pipeline {
                     slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started")
                     def packageJson = readJSON file: 'webapp/package.json'
                     env.VERSION = packageJson.version
-                    env.BACKEND_IMAGE_TAG = "${env.BACKEND_IMAGE}:${env.VERSION}"
-                    env.FRONTEND_IMAGE_TAG = "${env.FRONTEND_IMAGE}:${env.VERSION}"
+                    env.BACKEND_IMAGE_TAG = "${BACKEND_IMAGE}:${env.VERSION}"
+                    env.FRONTEND_IMAGE_TAG = "${FRONTEND_IMAGE}:${env.VERSION}"
                     slackSend(channel: SLACK_CHANNEL, message: "Read Version stage completed with version ${env.VERSION}")
                 }
             }
         }
-
 
         stage('Build and Push Backend Image') {
             steps {
@@ -98,9 +97,9 @@ pipeline {
                     slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage started")
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                         sh """
-                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
-                        kubectl apply -f ${WORKSPACE}/api/be-deployment.yml
-                        kubectl apply -f ${WORKSPACE}/api/be-service.yml
+                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
+                            kubectl apply -f ${WORKSPACE}/api/be-deployment.yml
+                            kubectl apply -f ${WORKSPACE}/api/be-service.yml
                         """
                     }
                     slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage completed")
@@ -108,37 +107,37 @@ pipeline {
             }
         }
     
-        stage('Build and Push frontend Image') {
+        stage('Build and Push Frontend Image') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push frontend Image stage started")
+                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push Frontend Image stage started")
                     docker.build("${FRONTEND_IMAGE}:${env.VERSION}", 'webapp')
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
                         docker.image("${FRONTEND_IMAGE}:${env.VERSION}").push()
                     }
-                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push frontend Image stage completed")
+                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push Frontend Image stage completed")
                 }
             }
         }
 
-
-        stage('Apply frontend Deployment') {
+        stage('Apply Frontend Deployment') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Apply frontend Deployment stage started")
+                    slackSend(channel: SLACK_CHANNEL, message: "Apply Frontend Deployment stage started")
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                         sh """
-                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
-                        kubectl apply -f ${WORKSPACE}/webapp/fe-deployment.yml
-                        kubectl apply -f ${WORKSPACE}/webapp/fe-service.yml
+                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
+                            kubectl apply -f ${WORKSPACE}/webapp/fe-deployment.yml
+                            kubectl apply -f ${WORKSPACE}/webapp/fe-service.yml
                         """
                     }
-                    slackSend(channel: SLACK_CHANNEL, message: "Apply frontend Deployment stage completed")
+                    slackSend(channel: SLACK_CHANNEL, message: "Apply Frontend Deployment stage completed")
                 }
             }
         }
     }
 }
+
 //         stage('Production Approval') {
 //             steps {
 //                 script {
