@@ -9,7 +9,7 @@ pipeline {
         BACKEND_IMAGE = "${DOCKER_REGISTRY}/lms-be"
         DOCKER_CREDENTIALS_ID = 'lms-docker'
         SLACK_CHANNEL = '#devops-projects'
-        SLACK_CREDENTIALS_ID = 'Secret text' // Replace with the actual credentials ID for your Slack token
+        SLACK_CREDENTIALS_ID = 'slack-token' // Replace with the actual credentials ID for your Slack token
         AWS_CREDENTIALS_ID = 'aws-credentials' // Replace with your actual AWS credentials ID
     }
 
