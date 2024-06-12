@@ -147,14 +147,14 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Approval') {
             steps {
                 script {
                     timeout(time: 5, unit: 'MINUTES') {
                         slackSend(
                             channel: env.SLACK_CHANNEL, 
-                            message: "Approval stage started for ${env.JOB_NAME} (<${env.BUILD_URL}|Job Link>)", 
+                            message: "Approval stage started for ${env.JOB_NAME} (<http://54.245.145.122:8080/job/lms-deployment-pipeline/|Job Link>)", 
                             tokenCredentialId: env.SLACK_CREDENTIALS_ID
                         )
                         input message: 'Approve to Deploy', ok: 'Yes'
