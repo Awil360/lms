@@ -187,8 +187,7 @@ pipeline {
         always {
             script {
                 try {
-                    def log = currentBuild.rawBuild.getLog()
-                    writeFile file: 'build.log', text: log.join('\n')
+                    sh 'cat $WORKSPACE/console.log > build.log'
                     archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
                     def consoleOutput = readFile('build.log')
                     slackSend(
