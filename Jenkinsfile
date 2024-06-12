@@ -142,39 +142,38 @@ pipeline {
     }
 }
 
-//         stage('Approval') {
-//             steps {
-//                 script {
-//                     timeout(time: 5, unit: 'MINUTES') {
-//                         slackSend(
-//                             channel: 'team-updates', 
-//                             message: "Approval stage started for ${env.JOB_NAME} (<http://54.245.145.122:8080/job/lms-deployment-pipeline/${env.BUILD_NUMBER}/|Job Link>)", 
-//                             tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
-//                         )
-//                         input message: 'Approve to Deploy', ok: 'Yes'
-//                     }
-//                     slackSend(
-//                         channel: 'approve', 
-//                         color: '#439FE0', 
-//                         message: 'Request to build approved', 
-//                         tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
-//                     )
-//                 }
-//             }
-//         }
+        stage('Approval') {
+            steps {
+                script {
+                    timeout(time: 5, unit: 'MINUTES') {
+                        slackSend(
+                            channel: 'team-updates', 
+                            message: "Approval stage started for ${env.JOB_NAME} (<http://54.245.145.122:8080/job/lms-deployment-pipeline/${env.BUILD_NUMBER}/|Job Link>)", 
+                            tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
+                        )
+                        input message: 'Approve to Deploy', ok: 'Yes'
+                    }
+                    slackSend(
+                        channel: 'approve', 
+                        color: '#439FE0', 
+                        message: 'Request to build approved', 
+                        tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
+                    )
+                }
+            }
+        }
 
-//         stage('Notify After Approval') {
-//             steps {
-//                 slackSend(
-//                     channel: 'approve', 
-//                     color: '#439FE0', 
-//                     message: 'LMS production deployment started', 
-//                     tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
-//                 )
-//             }
-//         }
-//     }
-// }
+        stage('Notify After Approval') {
+            steps {
+                slackSend(
+                    channel: 'approve', 
+                    color: '#439FE0', 
+                    message: 'LMS production deployment started', 
+                    tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
+                )
+            }
+        }
+    
 
 //          stage('Approval') {
 //             steps {
