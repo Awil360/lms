@@ -17,7 +17,7 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage started")
+                    slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 sh '''
                     sudo docker run --rm \
@@ -28,7 +28,7 @@ pipeline {
                     -Dsonar.projectKey=lms
                 '''
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage completed")
+                    slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
             }
         }
@@ -36,11 +36,11 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Checkout stage started")
+                    slackSend(channel: SLACK_CHANNEL, message: "Checkout stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 checkout scm
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Checkout stage completed")
+                    slackSend(channel: SLACK_CHANNEL, message: "Checkout stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
             }
         }
@@ -48,7 +48,7 @@ pipeline {
         stage('Deploy Database and ConfigMap') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage started")
+                    slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                     sh """
@@ -60,7 +60,7 @@ pipeline {
                     """
                 }
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage completed")
+                    slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
             }
         }
@@ -68,12 +68,12 @@ pipeline {
         stage('Read Version') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started")
+                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                     def packageJson = readJSON file: 'webapp/package.json'
                     env.VERSION = packageJson.version
                     env.BACKEND_IMAGE_TAG = "${BACKEND_IMAGE}:${env.VERSION}"
                     env.FRONTEND_IMAGE_TAG = "${FRONTEND_IMAGE}:${env.VERSION}"
-                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage completed with version ${env.VERSION}")
+                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage completed with version ${env.VERSION}", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
             }
         }
@@ -81,7 +81,7 @@ pipeline {
         stage('Build and Push Backend Image') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push Backend Image stage started")
+                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push Backend Image stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 script {
                     docker.build("${BACKEND_IMAGE}:${env.VERSION}", 'api')
@@ -90,7 +90,7 @@ pipeline {
                     }
                 }
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push Backend Image stage completed")
+                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push Backend Image stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
             }
         }
@@ -98,7 +98,7 @@ pipeline {
         stage('Apply Backend Deployment') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage started")
+                    slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                     sh """
@@ -108,7 +108,7 @@ pipeline {
                     """
                 }
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage completed")
+                    slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
             }
         }
@@ -116,7 +116,7 @@ pipeline {
         stage('Build and Push Frontend Image') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push Frontend Image stage started")
+                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push Frontend Image stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 script {
                     docker.build("${FRONTEND_IMAGE}:${env.VERSION}", 'webapp')
@@ -125,7 +125,7 @@ pipeline {
                     }
                 }
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push Frontend Image stage completed")
+                    slackSend(channel: SLACK_CHANNEL, message: "Build and Push Frontend Image stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
             }
         }
@@ -133,7 +133,7 @@ pipeline {
         stage('Apply Frontend Deployment') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Apply Frontend Deployment stage started")
+                    slackSend(channel: SLACK_CHANNEL, message: "Apply Frontend Deployment stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                     sh """
@@ -143,7 +143,7 @@ pipeline {
                     """
                 }
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Apply Frontend Deployment stage completed")
+                    slackSend(channel: SLACK_CHANNEL, message: "Apply Frontend Deployment stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
             }
         }
@@ -186,10 +186,9 @@ pipeline {
     post {
         always {
             script {
-                def consoleOutput = ""
                 try {
-                    def logFile = currentBuild.rawBuild.getLog(1000) // Change 1000 to the number of lines you want to fetch
-                    consoleOutput = logFile.join('\n')
+                    archiveArtifacts artifacts: 'console.log', allowEmptyArchive: true
+                    def consoleOutput = readFile('console.log')
                     slackSend(
                         channel: env.SLACK_CHANNEL,
                         color: '#439FE0',
