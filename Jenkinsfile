@@ -147,23 +147,23 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Approval') {
             steps {
                 script {
                     timeout(time: 5, unit: 'MINUTES') {
                         slackSend(
-                            channel: '#devops-projects', 
-                            message: "Approval stage started for ${env.JOB_NAME} (<http://54.245.145.122:8080/job/lms-deployment-pipeline/${env.BUILD_NUMBER}/|Job Link>)", 
-                            tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
+                            channel: env.SLACK_CHANNEL, 
+                            message: "Approval stage started for ${env.JOB_NAME} (<${env.BUILD_URL}|Job Link>)", 
+                            tokenCredentialId: env.SLACK_CREDENTIALS_ID
                         )
                         input message: 'Approve to Deploy', ok: 'Yes'
                     }
                     slackSend(
-                        channel: '#devops-projects', 
+                        channel: env.SLACK_CHANNEL, 
                         color: '#439FE0', 
                         message: 'Request to build approved', 
-                        tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
+                        tokenCredentialId: env.SLACK_CREDENTIALS_ID
                     )
                 }
             }
@@ -173,10 +173,10 @@ pipeline {
             steps {
                 script {
                     slackSend(
-                        channel: '#devops-projects', 
+                        channel: env.SLACK_CHANNEL, 
                         color: '#439FE0', 
                         message: 'LMS production deployment started', 
-                        tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
+                        tokenCredentialId: env.SLACK_CREDENTIALS_ID
                     )
                 }
             }
@@ -191,10 +191,10 @@ pipeline {
                     def logFile = currentBuild.rawBuild.getLog(1000) // Change 1000 to the number of lines you want to fetch
                     consoleOutput = logFile.join('\n')
                     slackSend(
-                        channel: '#devops-projects',
+                        channel: env.SLACK_CHANNEL,
                         color: '#439FE0',
                         message: "Build Console Output:\n```${consoleOutput}```",
-                        tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
+                        tokenCredentialId: env.SLACK_CREDENTIALS_ID
                     )
                 } catch (Exception e) {
                     println("Failed to read console output: ${e.message}")
