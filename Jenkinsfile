@@ -187,8 +187,10 @@ pipeline {
         always {
             script {
                 try {
-                    archiveArtifacts artifacts: 'console.log', allowEmptyArchive: true
-                    def consoleOutput = readFile('console.log')
+                    def log = currentBuild.rawBuild.getLog()
+                    writeFile file: 'build.log', text: log.join('\n')
+                    archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
+                    def consoleOutput = readFile('build.log')
                     slackSend(
                         channel: env.SLACK_CHANNEL,
                         color: '#439FE0',
