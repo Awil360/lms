@@ -18,16 +18,16 @@ pipeline {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage started")
-
-                    sh '''
-                        sudo docker run --rm \
-                        -e SONAR_HOST_URL="http://54.245.145.122:9000" \
-                        -e SONAR_TOKEN="sqp_ba55720494d3b95c572b1182d6705cfaec2f34e4" \
-                        -v "$PWD:/usr/src" \
-                        sonarsource/sonar-scanner-cli \
-                        -Dsonar.projectKey=lms
-                    '''
-                    
+                }
+                sh '''
+                    sudo docker run --rm \
+                    -e SONAR_HOST_URL="http://54.245.145.122:9000" \
+                    -e SONAR_TOKEN="sqp_ba55720494d3b95c572b1182d6705cfaec2f34e4" \
+                    -v "$PWD:/usr/src" \
+                    sonarsource/sonar-scanner-cli \
+                    -Dsonar.projectKey=lms
+                '''
+                script {
                     slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage completed")
                 }
             }
@@ -82,10 +82,14 @@ pipeline {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push Backend Image stage started")
+                }
+                script {
                     docker.build("${BACKEND_IMAGE}:${env.VERSION}", 'api')
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
                         docker.image("${BACKEND_IMAGE}:${env.VERSION}").push()
                     }
+                }
+                script {
                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push Backend Image stage completed")
                 }
             }
@@ -108,15 +112,19 @@ pipeline {
                 }
             }
         }
-    
+
         stage('Build and Push Frontend Image') {
             steps {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push Frontend Image stage started")
+                }
+                script {
                     docker.build("${FRONTEND_IMAGE}:${env.VERSION}", 'webapp')
                     docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
                         docker.image("${FRONTEND_IMAGE}:${env.VERSION}").push()
                     }
+                }
+                script {
                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push Frontend Image stage completed")
                 }
             }
@@ -139,22 +147,20 @@ pipeline {
                 }
             }
         }
-    }
-}
 
         stage('Approval') {
             steps {
                 script {
                     timeout(time: 5, unit: 'MINUTES') {
                         slackSend(
-                            channel: 'team-updates', 
+                            channel: '#team-updates', 
                             message: "Approval stage started for ${env.JOB_NAME} (<http://54.245.145.122:8080/job/lms-deployment-pipeline/${env.BUILD_NUMBER}/|Job Link>)", 
                             tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
                         )
                         input message: 'Approve to Deploy', ok: 'Yes'
                     }
                     slackSend(
-                        channel: 'approve', 
+                        channel: '#approve', 
                         color: '#439FE0', 
                         message: 'Request to build approved', 
                         tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
@@ -165,66 +171,35 @@ pipeline {
 
         stage('Notify After Approval') {
             steps {
-                slackSend(
-                    channel: 'approve', 
-                    color: '#439FE0', 
-                    message: 'LMS production deployment started', 
-                    tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
-                )
+                script {
+                    slackSend(
+                        channel: '#approve', 
+                        color: '#439FE0', 
+                        message: 'LMS production deployment started', 
+                        tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
+                    )
+                }
             }
         }
-    
+    }
 
-//          stage('Approval') {
-//             steps {
-//                  script{
-//                 timeout(time: 5,unit: "MINUTES"){
-//                 slackSend channel: ' team-updates', message: "slackSend 'started ${env.JOB_NAME}  (http://54.218.32.166:8080/job/lms-deployment-pipeline/${env.BUILD_NUMBER}/)'", teamDomain: 'devops-rkv5493', tokenCredentialId: 'Secret text'
-//                 input message:'Approve to Deploy',ok: 'Yes'
-//             }
-//         }
-//             slackSend channel: 'eks', color: '#439FE0', message: 'request to build approved', teamDomain: 'devops-rkv5493', tokenCredentialId: 'Secret text'
-//     }
-// }
-//         stage('nofity after approval') {
-//             steps {
-//                slackSend channel: 'eks', color: '#439FE0', message: 'slackSend "started LMS production"', teamDomain: 'devops-rkv5493', tokenCredentialId: 'Secret text'
-//             }
-//         }
-
-//         post {
-//         always {
-//             script {
-//                 def consoleOutput = ""
-//                 try {
-//                     // Get console output from current build
-//                     def logFile = currentBuild.rawBuild.getLog(1000) // Change 1000 to number of lines you want to fetch
-//                     consoleOutput = logFile.join('\n')
-//                     // Send console output to Slack
-//                     slackSend(
-//                         color: '#439FE0',
-//                         message: "Build Console Output:\n```${consoleOutput}```",
-//                     channel: 'social',
-//                     teamDomain: 'jenkinsnotifi-beh9943',
-//                     tokenCredentialId: 'Secret text'
-//                     )
-                     
-//             }       catch (Exception e) {
-//                       println("Failed to read console output: ${e.message}")
-//         }
-//     }
-//         }
-//         }
-
-    
-
-   
-
-
-
-
-
-
-
-
-
+    post {
+        always {
+            script {
+                def consoleOutput = ""
+                try {
+                    def logFile = currentBuild.rawBuild.getLog(1000) // Change 1000 to the number of lines you want to fetch
+                    consoleOutput = logFile.join('\n')
+                    slackSend(
+                        channel: '#social',
+                        color: '#439FE0',
+                        message: "Build Console Output:\n```${consoleOutput}```",
+                        tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
+                    )
+                } catch (Exception e) {
+                    println("Failed to read console output: ${e.message}")
+                }
+            }
+        }
+    }
+}
