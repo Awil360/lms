@@ -153,14 +153,14 @@ pipeline {
                 script {
                     timeout(time: 5, unit: 'MINUTES') {
                         slackSend(
-                            channel: '#team-updates', 
+                            channel: '#devops-projects', 
                             message: "Approval stage started for ${env.JOB_NAME} (<http://54.245.145.122:8080/job/lms-deployment-pipeline/${env.BUILD_NUMBER}/|Job Link>)", 
                             tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
                         )
                         input message: 'Approve to Deploy', ok: 'Yes'
                     }
                     slackSend(
-                        channel: '#approve', 
+                        channel: '#devops-projects', 
                         color: '#439FE0', 
                         message: 'Request to build approved', 
                         tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
@@ -173,7 +173,7 @@ pipeline {
             steps {
                 script {
                     slackSend(
-                        channel: '#approve', 
+                        channel: '#devops-projects', 
                         color: '#439FE0', 
                         message: 'LMS production deployment started', 
                         tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
@@ -191,7 +191,7 @@ pipeline {
                     def logFile = currentBuild.rawBuild.getLog(1000) // Change 1000 to the number of lines you want to fetch
                     consoleOutput = logFile.join('\n')
                     slackSend(
-                        channel: '#social',
+                        channel: '#devops-projects',
                         color: '#439FE0',
                         message: "Build Console Output:\n```${consoleOutput}```",
                         tokenCredentialId: "${SLACK_CREDENTIALS_ID}"
