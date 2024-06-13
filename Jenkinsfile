@@ -184,13 +184,12 @@ pipeline {
     }
 
     post {
-        always {
-            script {
-                try {
-                    sh '''
-                        # Capture the last 1000 lines of the console log to a file
-                        tail -n 1000 ${WORKSPACE}/console.log > build.log
-                    '''
+    always {
+        script {
+            try {
+                def consoleLogPath = "${WORKSPACE}/console.log"
+                if (fileExists(consoleLogPath)) {
+                    sh "tail -n 1000 ${consoleLogPath} > build.log"
                     archiveArtifacts artifacts: 'build.log'
                     slackSend(
                         channel: env.SLACK_CHANNEL,
@@ -199,10 +198,26 @@ pipeline {
                         filePath: 'build.log',
                         tokenCredentialId: env.SLACK_CREDENTIALS_ID
                     )
-                } catch (Exception e) {
-                    println("Failed to read console output: ${e.message}")
+                } else {
+                    println("Console log file (${consoleLogPath}) not found.")
+                    slackSend(
+                        channel: env.SLACK_CHANNEL,
+                        color: '#FF0000',
+                        message: "```${env.JOB_NAME}```\nFailed to capture console output: Log file not found.",
+                        tokenCredentialId: env.SLACK_CREDENTIALS_ID
+                    )
                 }
+            } catch (Exception e) {
+                println("Failed to read console output: ${e.message}")
+                slackSend(
+                    channel: env.SLACK_CHANNEL,
+                    color: '#FF0000',
+                    message: "```${env.JOB_NAME}```\nFailed to read console output: ${e.message}",
+                    tokenCredentialId: env.SLACK_CREDENTIALS_ID
+                )
             }
         }
     }
 }
+}
+
