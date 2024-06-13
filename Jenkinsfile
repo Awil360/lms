@@ -187,14 +187,13 @@ pipeline {
         always {
             script {
                 try {
-                    sh 'echo "Build Console Output:" > build.log'
-                    sh 'cat $WORKSPACE/console.log >> build.log'
+                    def logFile = new File("${env.WORKSPACE}/build.log")
+                    logFile << currentBuild.rawBuild.getLog(10000).join('\n')
                     slackSend(
                         channel: env.SLACK_CHANNEL,
                         color: '#439FE0',
                         message: "```${env.JOB_NAME}```\nBuild Console Output:",
-                        fileContent: true,
-                        attachments: ["$WORKSPACE/build.log"],
+                        filePath: logFile.getAbsolutePath(),
                         tokenCredentialId: env.SLACK_CREDENTIALS_ID
                     )
                 } catch (Exception e) {
