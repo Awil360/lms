@@ -187,13 +187,14 @@ pipeline {
         always {
             script {
                 try {
-                    sh 'cat $WORKSPACE/console.log > build.log'
-                    archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
-                    def consoleOutput = readFile('build.log')
+                    sh 'echo "Build Console Output:" > build.log'
+                    sh 'cat $WORKSPACE/console.log >> build.log'
                     slackSend(
                         channel: env.SLACK_CHANNEL,
                         color: '#439FE0',
-                        message: "Build Console Output:\n```${consoleOutput}```",
+                        message: "```${env.JOB_NAME}```\nBuild Console Output:",
+                        fileContent: true,
+                        attachments: ["$WORKSPACE/build.log"],
                         tokenCredentialId: env.SLACK_CREDENTIALS_ID
                     )
                 } catch (Exception e) {
