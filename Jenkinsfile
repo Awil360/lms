@@ -21,7 +21,7 @@ pipeline {
                 }
                 sh '''
                     sudo docker run --rm \
-                    -e SONAR_HOST_URL="http://54.245.145.122:9000" \
+                    -e SONAR_HOST_URL="http://54.200.210.163:9000" \
                     -e SONAR_TOKEN="sqp_ba55720494d3b95c572b1182d6705cfaec2f34e4" \
                     -v "$PWD:/usr/src" \
                     sonarsource/sonar-scanner-cli \
@@ -154,7 +154,7 @@ pipeline {
                     timeout(time: 5, unit: 'MINUTES') {
                         slackSend(
                             channel: env.SLACK_CHANNEL, 
-                            message: "Approval stage started for ${env.JOB_NAME} (<http://54.245.145.122:8080/job/lms-deployment-pipeline/|Job Link>)", 
+                            message: "Approval stage started for ${env.JOB_NAME} (<http://54.200.210.163:8080/job/lms-deployment-pipeline/|Job Link>)", 
                             tokenCredentialId: env.SLACK_CREDENTIALS_ID
                         )
                         input message: 'Approve to Deploy', ok: 'Yes'
