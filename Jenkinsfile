@@ -186,11 +186,9 @@ pipeline {
     post {
     always {
         script {
-            try {
-                def consoleLogPath = "${WORKSPACE}/console.log"
-                if (fileExists(consoleLogPath)) {
-                    sh "tail -n 1000 ${consoleLogPath} > build.log"
-                    archiveArtifacts artifacts: 'build.log'
+            def buildLogPath = "${WORKSPACE}/build.log"
+            if (fileExists(buildLogPath)) {
+                try {
                     slackSend(
                         channel: env.SLACK_CHANNEL,
                         color: '#439FE0',
@@ -198,21 +196,21 @@ pipeline {
                         filePath: 'build.log',
                         tokenCredentialId: env.SLACK_CREDENTIALS_ID
                     )
-                } else {
-                    println("Console log file (${consoleLogPath}) not found.")
+                } catch (Exception e) {
+                    println("Failed to send build log to Slack: ${e.message}")
                     slackSend(
                         channel: env.SLACK_CHANNEL,
                         color: '#FF0000',
-                        message: "```${env.JOB_NAME}```\nFailed to capture console output: Log file not found.",
+                        message: "```${env.JOB_NAME}```\nFailed to send build log to Slack: ${e.message}",
                         tokenCredentialId: env.SLACK_CREDENTIALS_ID
                     )
                 }
-            } catch (Exception e) {
-                println("Failed to read console output: ${e.message}")
+            } else {
+                println("Build log file (${buildLogPath}) not found.")
                 slackSend(
                     channel: env.SLACK_CHANNEL,
                     color: '#FF0000',
-                    message: "```${env.JOB_NAME}```\nFailed to read console output: ${e.message}",
+                    message: "```${env.JOB_NAME}```\nFailed to capture build log: Log file not found.",
                     tokenCredentialId: env.SLACK_CREDENTIALS_ID
                 )
             }
