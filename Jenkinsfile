@@ -19,17 +19,14 @@ pipeline {
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
-                script {
-                    def codeAnalysisOutput = sh(script: '''
-                        sudo docker run --rm \
-                        -e SONAR_HOST_URL="http://54.200.210.163:9000" \
-                        -e SONAR_TOKEN="sqp_ba55720494d3b95c572b1182d6705cfaec2f34e4" \
-                        -v "$PWD:/usr/src" \
-                        sonarsource/sonar-scanner-cli \
-                        -Dsonar.projectKey=lms
-                    ''', returnStdout: true).trim()
-                    echo codeAnalysisOutput
-                }
+                sh '''
+                    sudo docker run --rm \
+                    -e SONAR_HOST_URL="http://54.200.210.163:9000" \
+                    -e SONAR_TOKEN="sqp_ba55720494d3b95c572b1182d6705cfaec2f34e4" \
+                    -v "$PWD:/usr/src" \
+                    sonarsource/sonar-scanner-cli \
+                    -Dsonar.projectKey=lms
+                '''
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
@@ -54,16 +51,13 @@ pipeline {
                     slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
-                    script {
-                        def deployOutput = sh(script: """
-                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
-                            kubectl apply -f ${WORKSPACE}/api/pg-secret.yml
-                            kubectl apply -f ${WORKSPACE}/api/pg-deployment.yml
-                            kubectl apply -f ${WORKSPACE}/api/pg-service.yml
-                            kubectl apply -f ${WORKSPACE}/api/be-configmap.yml
-                        """, returnStdout: true).trim()
-                        echo deployOutput
-                    }
+                    sh """
+                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
+                        kubectl apply -f ${WORKSPACE}/api/pg-secret.yml
+                        kubectl apply -f ${WORKSPACE}/api/pg-deployment.yml
+                        kubectl apply -f ${WORKSPACE}/api/pg-service.yml
+                        kubectl apply -f ${WORKSPACE}/api/be-configmap.yml
+                    """
                 }
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
@@ -90,12 +84,10 @@ pipeline {
                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push Backend Image stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 script {
-                    def buildPushBackendOutput = sh(script: """
-                        docker build -t ${BACKEND_IMAGE}:${env.VERSION} api
-                        docker login -u <username> -p <password>
-                        docker push ${BACKEND_IMAGE}:${env.VERSION}
-                    """, returnStdout: true).trim()
-                    echo buildPushBackendOutput
+                    docker.build("${BACKEND_IMAGE}:${env.VERSION}", 'api')
+                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
+                        docker.image("${BACKEND_IMAGE}:${env.VERSION}").push()
+                    }
                 }
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push Backend Image stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
@@ -109,14 +101,11 @@ pipeline {
                     slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
-                    script {
-                        def applyBackendOutput = sh(script: """
-                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
-                            kubectl apply -f ${WORKSPACE}/api/be-deployment.yml
-                            kubectl apply -f ${WORKSPACE}/api/be-service.yml
-                        """, returnStdout: true).trim()
-                        echo applyBackendOutput
-                    }
+                    sh """
+                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
+                        kubectl apply -f ${WORKSPACE}/api/be-deployment.yml
+                        kubectl apply -f ${WORKSPACE}/api/be-service.yml
+                    """
                 }
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Apply Backend Deployment stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
@@ -130,12 +119,10 @@ pipeline {
                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push Frontend Image stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 script {
-                    def buildPushFrontendOutput = sh(script: """
-                        docker build -t ${FRONTEND_IMAGE}:${env.VERSION} webapp
-                        docker login -u <username> -p <password>
-                        docker push ${FRONTEND_IMAGE}:${env.VERSION}
-                    """, returnStdout: true).trim()
-                    echo buildPushFrontendOutput
+                    docker.build("${FRONTEND_IMAGE}:${env.VERSION}", 'webapp')
+                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
+                        docker.image("${FRONTEND_IMAGE}:${env.VERSION}").push()
+                    }
                 }
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Build and Push Frontend Image stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
@@ -149,14 +136,11 @@ pipeline {
                     slackSend(channel: SLACK_CHANNEL, message: "Apply Frontend Deployment stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
-                    script {
-                        def applyFrontendOutput = sh(script: """
-                            aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
-                            kubectl apply -f ${WORKSPACE}/webapp/fe-deployment.yml
-                            kubectl apply -f ${WORKSPACE}/webapp/fe-service.yml
-                        """, returnStdout: true).trim()
-                        echo applyFrontendOutput
-                    }
+                    sh """
+                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER_NAME}
+                        kubectl apply -f ${WORKSPACE}/webapp/fe-deployment.yml
+                        kubectl apply -f ${WORKSPACE}/webapp/fe-service.yml
+                    """
                 }
                 script {
                     slackSend(channel: SLACK_CHANNEL, message: "Apply Frontend Deployment stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
@@ -202,13 +186,20 @@ pipeline {
     post {
         always {
             script {
-                def consoleOutput = currentBuild.rawBuild.getLog(1000).join("\n")
-                slackSend(
-                    channel: env.SLACK_CHANNEL,
-                    color: '#439FE0',
-                    message: "Build Console Output:\n```${consoleOutput}```",
-                    tokenCredentialId: env.SLACK_CREDENTIALS_ID
-                )
+                try {
+                    sh 'echo "Build Console Output:" > build.log'
+                    sh 'cat $WORKSPACE/console.log >> build.log'
+                    slackSend(
+                        channel: env.SLACK_CHANNEL,
+                        color: '#439FE0',
+                        message: "```${env.JOB_NAME}```\nBuild Console Output:",
+                        fileContent: true,
+                        attachments: ["$WORKSPACE/build.log"],
+                        tokenCredentialId: env.SLACK_CREDENTIALS_ID
+                    )
+                } catch (Exception e) {
+                    println("Failed to read console output: ${e.message}")
+                }
             }
         }
     }
