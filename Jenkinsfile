@@ -193,7 +193,8 @@ pipeline {
                         channel: env.SLACK_CHANNEL,
                         color: '#439FE0',
                         message: "```${env.JOB_NAME}```\nBuild Console Output:",
-                        filePath: 'build.log',
+                        fileContent: true,
+                        attachments: [buildLogPath],
                         tokenCredentialId: env.SLACK_CREDENTIALS_ID
                     )
                 } catch (Exception e) {
