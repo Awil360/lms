@@ -183,18 +183,17 @@ pipeline {
         }
     }
 
-    post {
+  post {
     always {
         script {
             def buildLogPath = "${WORKSPACE}/build.log"
             if (fileExists(buildLogPath)) {
                 try {
+                    def buildLogContent = readFile(buildLogPath).trim()
                     slackSend(
                         channel: env.SLACK_CHANNEL,
                         color: '#439FE0',
-                        message: "```${env.JOB_NAME}```\nBuild Console Output:",
-                        fileContent: true,
-                        attachments: [buildLogPath],
+                        message: "```${env.JOB_NAME}```\nBuild Console Output:\n```\n${buildLogContent}\n```",
                         tokenCredentialId: env.SLACK_CREDENTIALS_ID
                     )
                 } catch (Exception e) {
@@ -218,5 +217,6 @@ pipeline {
         }
     }
 }
+
 }
 
