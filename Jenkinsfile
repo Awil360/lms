@@ -187,8 +187,10 @@ pipeline {
         always {
             script {
                 try {
-                    def log = currentBuild.rawBuild.getLog(10000).join('\n')
-                    writeFile file: 'build.log', text: log
+                    sh '''
+                        # Capture the last 1000 lines of the console log to a file
+                        tail -n 1000 ${WORKSPACE}/console.log > build.log
+                    '''
                     archiveArtifacts artifacts: 'build.log'
                     slackSend(
                         channel: env.SLACK_CHANNEL,
