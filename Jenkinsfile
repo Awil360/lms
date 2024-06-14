@@ -1,10 +1,3 @@
-def sendSlackMessage(String message) {
-    def maxLength = 4000
-    for (int i = 0; i < message.length(); i += maxLength) {
-        def chunk = message.substring(i, Math.min(message.length(), i + maxLength))
-        slackSend(channel: '#devops-projects', message: chunk, teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: 'slack-token')
-    }
-}
 pipeline {
     agent any
 
@@ -21,24 +14,24 @@ pipeline {
     }
 
     stages {
-        stage('Code Analysis') {
-            steps {
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage started", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
-                }
-                sh '''
-                    sudo docker run --rm \
-                    -e SONAR_HOST_URL="http://34.219.155.77:9000" \
-                    -e SONAR_TOKEN="sqp_ba55720494d3b95c572b1182d6705cfaec2f34e4" \
-                    -v "$PWD:/usr/src" \
-                    sonarsource/sonar-scanner-cli \
-                    -Dsonar.projectKey=lms
-                '''
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage completed", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
-                }
-            }
-        }
+        // stage('Code Analysis') {
+        //     steps {
+        //         script {
+        //             slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage started", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
+        //         }
+        //         sh '''
+        //             sudo docker run --rm \
+        //             -e SONAR_HOST_URL="http://34.219.155.77:9000" \
+        //             -e SONAR_TOKEN="sqp_ba55720494d3b95c572b1182d6705cfaec2f34e4" \
+        //             -v "$PWD:/usr/src" \
+        //             sonarsource/sonar-scanner-cli \
+        //             -Dsonar.projectKey=lms
+        //         '''
+        //         script {
+        //             slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage completed", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
+        //         }
+        //     }
+        // }
 
         stage('Checkout') {
             steps {
