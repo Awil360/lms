@@ -168,16 +168,16 @@ pipeline {
                 script {
                     timeout(time: 5, unit: 'MINUTES') {
                         slackSend(
-                            channel: env.SLACK_CHANNEL,
-                            message: "Approval stage started for ${env.JOB_NAME} (<http://34.219.155.77:8080/job/lms-deployment-pipeline/|Job Link>)",
+                            channel: env.SLACK_CHANNEL, 
+                            message: "Approval stage started for ${env.JOB_NAME} (<http://34.219.155.77:8080/job/lms-deployment-pipeline/|Job Link>)", 
                             tokenCredentialId: env.SLACK_CREDENTIALS_ID
                         )
                         input message: 'Approve to Deploy', ok: 'Yes'
                     }
                     slackSend(
-                        channel: env.SLACK_CHANNEL,
-                        color: '#439FE0',
-                        message: 'Request to build approved',
+                        channel: env.SLACK_CHANNEL, 
+                        color: '#439FE0', 
+                        message: 'Request to build approved', 
                         tokenCredentialId: env.SLACK_CREDENTIALS_ID
                     )
                 }
@@ -188,9 +188,9 @@ pipeline {
             steps {
                 script {
                     slackSend(
-                        channel: env.SLACK_CHANNEL,
-                        color: '#439FE0',
-                        message: 'LMS production deployment started',
+                        channel: env.SLACK_CHANNEL, 
+                        color: '#439FE0', 
+                        message: 'LMS production deployment started', 
                         tokenCredentialId: env.SLACK_CREDENTIALS_ID
                     )
                 }
@@ -198,28 +198,30 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            script {
-                def consoleOutput = ""
-                try {
-                    // Get console output from current build
-                    def logFile = currentBuild.rawBuild.getLog(1000) // Change 1000 to number of lines you want to fetch
-                    consoleOutput = logFile.join('\n')
-                    // Send console output to Slack
-                    slackSend(
-                        color: '#439FE0',
-                        message: "Build Console Output:\n```${consoleOutput}```",
-                        channel: env.SLACK_CHANNEL,
-                        tokenCredentialId: env.SLACK_CREDENTIALS_ID
-                    )
-                } catch (Exception e) {
-                    println("Failed to read console output: ${e.message}")
-                }
-            }
-        }
+    post { 
+        always { 
+            script { 
+                def consoleOutput = "" 
+                try { 
+                    // Get console output from current build 
+                    def logFile = currentBuild.rawBuild.getLog(1000) // Change 1000 to number of lines you want to fetch 
+                    consoleOutput = logFile.join('\n') 
+                    // Send console output to Slack 
+                    slackSend( 
+                        color: '#439FE0', 
+                        message: "Build Console Output:\n```${consoleOutput}```", 
+                        channel: 'devops-projects', 
+                        teamDomain: 'jenkinsnotifi-beh9943', 
+                        tokenCredentialId: 'slack-token' 
+                    ) 
+                } catch (Exception e) { 
+                    println("Failed to read console output: ${e.message}") 
+                } 
+            } 
+        } 
     }
 }
+
 
        
 
