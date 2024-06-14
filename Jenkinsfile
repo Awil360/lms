@@ -192,7 +192,7 @@ post {
                 def logFile = currentBuild.rawBuild.getLogFile(1000)
 
                 // Read the entire log file as a string
-                consoleOutput = logFile.getText('\n')
+                consoleOutput = logFile.join('\n')
 
                 // Send console output to Slack
                 slackSend(
