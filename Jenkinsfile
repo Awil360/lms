@@ -154,7 +154,7 @@ pipeline {
                     timeout(time: 5, unit: 'MINUTES') {
                         slackSend(
                             channel: env.SLACK_CHANNEL, 
-                            message: "Approval stage started for ${env.JOB_NAME} (<http://54.200.210.163:8080/job/lms-deployment-pipeline/|Job Link>)", 
+                            message: "Approval stage started for ${env.JOB_NAME} (<http://34.219.155.77:8080/job/lms-deployment-pipeline/|Job Link>)", 
                             tokenCredentialId: env.SLACK_CREDENTIALS_ID
                         )
                         input message: 'Approve to Deploy', ok: 'Yes'
@@ -183,40 +183,31 @@ pipeline {
         }
     }
 
-  post {
-    always {
-        script {
-            def buildLogPath = "${WORKSPACE}/build.log"
-            if (fileExists(buildLogPath)) {
-                try {
-                    def buildLogContent = readFile(buildLogPath).trim()
-                    slackSend(
-                        channel: env.SLACK_CHANNEL,
-                        color: '#439FE0',
-                        message: "```${env.JOB_NAME}```\nBuild Console Output:\n```\n${buildLogContent}\n```",
-                        tokenCredentialId: env.SLACK_CREDENTIALS_ID
-                    )
-                } catch (Exception e) {
-                    println("Failed to send build log to Slack: ${e.message}")
-                    slackSend(
-                        channel: env.SLACK_CHANNEL,
-                        color: '#FF0000',
-                        message: "```${env.JOB_NAME}```\nFailed to send build log to Slack: ${e.message}",
-                        tokenCredentialId: env.SLACK_CREDENTIALS_ID
-                    )
-                }
-            } else {
-                println("Build log file (${buildLogPath}) not found.")
-                slackSend(
-                    channel: env.SLACK_CHANNEL,
-                    color: '#FF0000',
-                    message: "```${env.JOB_NAME}```\nFailed to capture build log: Log file not found.",
-                    tokenCredentialId: env.SLACK_CREDENTIALS_ID
-                )
-            }
-        }
-    }
-}
+ post { 
+        always { 
+            script { 
+                def consoleOutput = "" 
+                try { 
+                    // Get console output from current build 
+                    def logFile = currentBuild.rawBuild.getLog(1000) // Change 
+1000 to number of lines you want to fetch 
+                    consoleOutput = logFile.join('\n') 
+                    // Send console output to Slack 
+                    slackSend( 
+                        color: '#439FE0', 
+                        message: "Build Console 
+Output:\n```${consoleOutput}```", 
+                    channel: 'devops-projects', 
+                    teamDomain: 'jenkinsnotifi-beh9943', 
+                    tokenCredentialId: 'slack-token' 
+                ) 
+                      
+            }       catch (Exception e) { 
+                      println("Failed to read console output: ${e.message}") 
+       } 
+    } 
+    } 
+    } 
 }
 
 
