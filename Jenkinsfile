@@ -17,7 +17,7 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
+                    slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage started", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 sh '''
                     sudo docker run --rm \
@@ -28,7 +28,7 @@ pipeline {
                     -Dsonar.projectKey=lms
                 '''
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
+                    slackSend(channel: SLACK_CHANNEL, message: "Code analysis stage completed", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
             }
         }
@@ -36,11 +36,11 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Checkout stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
+                    slackSend(channel: SLACK_CHANNEL, message: "Checkout stage started", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 checkout scm
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Checkout stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
+                    slackSend(channel: SLACK_CHANNEL, message: "Checkout stage completed", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
             }
         }
@@ -48,7 +48,7 @@ pipeline {
         stage('Deploy Database and ConfigMap') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
+                    slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage started", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                     sh """
@@ -60,7 +60,7 @@ pipeline {
                     """
                 }
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage completed", tokenCredentialId: SLACK_CREDENTIALS_ID)
+                    slackSend(channel: SLACK_CHANNEL, message: "Deploy Database and ConfigMap stage completed", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
                 }
             }
         }
@@ -68,7 +68,7 @@ pipeline {
         stage('Read Version') {
             steps {
                 script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started", tokenCredentialId: SLACK_CREDENTIALS_ID)
+                    slackSend(channel: SLACK_CHANNEL, message: "Read Version stage started", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
                     def packageJson = readJSON file: 'webapp/package.json'
                     env.VERSION = packageJson.version
                     env.BACKEND_IMAGE_TAG = "${BACKEND_IMAGE}:${env.VERSION}"
