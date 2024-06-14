@@ -33,17 +33,17 @@ pipeline {
         //     }
         // }
 
-        stage('Checkout') {
-            steps {
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Checkout stage started", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
-                }
-                checkout scm
-                script {
-                    slackSend(channel: SLACK_CHANNEL, message: "Checkout stage completed", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
-                }
-            }
-        }
+        // stage('Checkout') {
+        //     steps {
+        //         script {
+        //             slackSend(channel: SLACK_CHANNEL, message: "Checkout stage started", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
+        //         }
+        //         checkout scm
+        //         script {
+        //             slackSend(channel: SLACK_CHANNEL, message: "Checkout stage completed", teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: SLACK_CREDENTIALS_ID)
+        //         }
+        //     }
+        // }
 
         stage('Deploy Database and ConfigMap') {
             steps {
