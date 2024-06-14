@@ -183,31 +183,28 @@ pipeline {
         }
     }
 
-post {
-    always {
-        script {
-            try {
-                def consoleOutput = ""
-                // Fetch console output from the build log
-                def logFile = currentBuild.rawBuild.getLogFile(1000)
-
-                // Read the entire log file as a string
-                consoleOutput = logFile.join('\n')
-
-                // Send console output to Slack
-                slackSend(
-                    color: '#439FE0',
-                    message: "Build Console Output:\n```${consoleOutput}```",
-                    channel: 'devops-projects',
-                    teamDomain: 'jenkinsnotifi-beh9943',
-                    tokenCredentialId: 'slack-token'
-                )
-            } catch (Exception e) {
-                println("Failed to read console output: ${e.message}")
-            }
-        }
+    post { 
+        always { 
+            script { 
+                def consoleOutput = "" 
+                try { 
+                    // Get console output from current build 
+                    def logFile = currentBuild.rawBuild.getLog(10000) // Change 1000 to number of lines you want to fetch 
+                    consoleOutput = logFile.join('\n') 
+                    // Send console output to Slack 
+                    slackSend( 
+                        color: '#439FE0', 
+                        message: "Build Console Output:\n```${consoleOutput}```", 
+                        channel: 'devops-projects', 
+                        teamDomain: 'jenkinsnotifi-beh9943', 
+                        tokenCredentialId: 'slack-token' 
+                    ) 
+                } catch (Exception e) { 
+                    println("Failed to read console output: ${e.message}") 
+                } 
+            } 
+        } 
     }
-}
 }
 
 
