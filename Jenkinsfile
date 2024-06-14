@@ -1,3 +1,10 @@
+def sendSlackMessage(String message) {
+    def maxLength = 4000
+    for (int i = 0; i < message.length(); i += maxLength) {
+        def chunk = message.substring(i, Math.min(message.length(), i + maxLength))
+        slackSend(channel: '#devops-projects', message: chunk, teamDomain: 'jenkinsnotifi-beh9943', tokenCredentialId: 'slack-token')
+    }
+}
 pipeline {
     agent any
 
