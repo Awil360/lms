@@ -13,7 +13,7 @@ pipeline {
         AWS_CREDENTIALS_ID = 'aws-credentials' // Replace with your actual AWS credentials ID
     }
 
-    // stages {
+    stages {
     //     stage('Code Analysis') {
     //         steps {
     //             script {
@@ -217,6 +217,6 @@ pipeline {
         }
     }
 }
-
+}
 
 
