@@ -189,11 +189,8 @@ pipeline {
                 def consoleOutput = "" 
                 try { 
                     // Get console output from current build 
-                    def logFile = currentBuild.rawBuild.getLog(10000) // Change 1000 to number of lines you want to fetch 
+                    def logFile = currentBuild.rawBuild.getLog(20000) // Change 1000 to number of lines you want to fetch 
                     consoleOutput = logFile.join('\n') 
-                    if (log.length() > 4000) {
-                        log = log[-4000..-1]
-                    }
                     // Send console output to Slack 
                     slackSend( 
                         color: '#439FE0', 
